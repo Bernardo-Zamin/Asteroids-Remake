@@ -14,7 +14,7 @@ from Ponto import *
 class ModeloMatricial:   
 
     def __init__(self):
-        self.Matriz = [] #[[0 for col in range(5)] for row in range(5)]
+        self.Matriz = [[0 for col in range(45)] for row in range(35)]
         # nro de linhas e colunas do modelo
         self.nLinhas = -1
         self.nColunas = -1
