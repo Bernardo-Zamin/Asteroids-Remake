@@ -29,6 +29,8 @@ from datetime import datetime
 import time
 import random
 from os import system, name
+
+
 # ***********************************************************************************
 
 # Modelos de Objetos
@@ -70,7 +72,7 @@ def init():
     CarregaModelos()
     CriaInstancias()
 
-    LarguraDoUniverso = 30
+    LarguraDoUniverso = 50
     Min = Ponto(-LarguraDoUniverso,-LarguraDoUniverso)
     Max = Ponto(LarguraDoUniverso,LarguraDoUniverso)
 
@@ -478,7 +480,7 @@ def CriaInstancias():
 glutInit(sys.argv)
 glutInitDisplayMode(GLUT_RGBA)
 # Define o tamanho inicial da janela grafica do programa
-glutInitWindowSize(500, 500)
+glutInitWindowSize(800, 800)
 glutInitWindowPosition(100, 100)
 wind = glutCreateWindow("Exemplo de Criacao de Instancias")
 glutDisplayFunc(display)
@@ -487,6 +489,8 @@ glutReshapeFunc(reshape)
 glutKeyboardFunc(keyboard)
 glutSpecialFunc(arrow_keys)
 glutMouseFunc(mouse)
+
+
 init()
 
 try:

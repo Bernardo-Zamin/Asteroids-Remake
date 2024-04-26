@@ -9,18 +9,22 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from Ponto import *
+import numpy as np
 
 """ Classe ModeloMatricial """
 class ModeloMatricial:   
 
     def __init__(self):
-        self.Matriz = [[0 for col in range(45)] for row in range(35)]
+        self.Matriz = []
         # nro de linhas e colunas do modelo
         self.nLinhas = -1
         self.nColunas = -1
     
-    def leModelo(self,nome):
-        pass
+    def leModelo(self, Nome):
+        with open(Nome) as infile:
+            self.nLinhas, self.nColunas = map(int, infile.readline().split())
+            self.Matriz = [list(map(int, infile.readline().split())) for _ in range(self.nLinhas)]
+
     
     def getColor(self, i, j): # retorna a cor do modelo na celula [i][j]
         return self.Matriz[i][j]
