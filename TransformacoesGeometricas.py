@@ -119,7 +119,7 @@ def display():
     glLoadIdentity()
 
     #glLineWidth(3)
-    glColor3f(1,1,1) # R, G, B  [0..1]
+    glColor3f(0,0,1) # R, G, B  [0..1]
     DesenhaEixos()
 
     DesenhaPersonagens()
@@ -151,8 +151,9 @@ def keyboard(*args):
 # **********************************************************************
 def arrow_keys(a_keys: int, x: int, y: int):
     if a_keys == GLUT_KEY_UP:         # Se pressionar UP
-        pass
+        Personagens[0].Posicao += Personagens[0].Direcao * 2
     if a_keys == GLUT_KEY_DOWN:       # Se pressionar DOWN
+        Personagens[0].Posicao -= Personagens[0].Direcao * 2
         pass
     if a_keys == GLUT_KEY_LEFT:       # Se pressionar LEFT
         Personagens[0].Rotacao += 5
