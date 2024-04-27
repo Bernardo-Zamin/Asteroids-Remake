@@ -72,7 +72,7 @@ def init():
     CarregaModelos()
     CriaInstancias()
 
-    LarguraDoUniverso = 250
+    LarguraDoUniverso = 150
     Min = Ponto(-LarguraDoUniverso,-LarguraDoUniverso)
     Max = Ponto(LarguraDoUniverso,LarguraDoUniverso)
 
@@ -426,8 +426,8 @@ def DesenhaPersonagemMatricial():
             if cor != -1: # nao desenha celulas com -1 (transparentes)
                 SetColor(cor)
                 DesenhaCelula()
-                SetColor(Wheat)
-                DesenhaBorda()
+                # SetColor(Wheat)   # AS DUAS LINHAS COMENTADAS PARA QUE NAO DESENHE A BORDA DE CADA PIXEL DOS PERSONAGENS
+                # DesenhaBorda()    #
             glTranslatef(1, 0, 0)
         glPopMatrix()
         glTranslatef(0, 1, 0)
