@@ -55,7 +55,7 @@ nInstancias = 0
 
 imprimeEnvelope = False
 
-LarguraDoUniverso = 10.0
+LarguraDoUniverso = 250.0
 
 TempoInicial = time.time()
 TempoTotal = time.time()
@@ -66,13 +66,13 @@ def init():
     global Min, Max
     global TempoInicial, LarguraDoUniverso
     # Define a cor do fundo da tela (AZUL)
-    glClearColor(0, 0, 1, 1)
+    glClearColor(0, 0, 0, 1)
     
     clear() # limpa o console
     CarregaModelos()
     CriaInstancias()
 
-    LarguraDoUniverso = 50
+    LarguraDoUniverso = 250
     Min = Ponto(-LarguraDoUniverso,-LarguraDoUniverso)
     Max = Ponto(LarguraDoUniverso,LarguraDoUniverso)
 
@@ -371,16 +371,20 @@ def DesenhaPersonagens():
 
 # ***********************************************************************************
 def CarregaModelos():
-
+    #Nave tem q ser o modelo 0 por conta da alteracao q fiz na rotacao de Z
     Modelos.append(ModeloMatricial())
     Modelos[0].leModelo("MatrizNave.txt")
     Modelos.append(ModeloMatricial())
     Modelos[1].leModelo("MatrizProjetil.txt")
+    Modelos.append(ModeloMatricial())
+    Modelos[2].leModelo("10x10.txt")
 
-    print ("Modelo 0");
+    print ("Modelo 0")
     Modelos[0].Imprime()
-    print ("Modelo 1");
+    print ("Modelo 1")
     Modelos[1].Imprime()
+    print ("Modelo 2")
+    Modelos[2].Imprime()
 
 
 def DesenhaCelula():
@@ -439,16 +443,18 @@ def CriaInstancias():
 
     i = 0
     ang = -90.0
-    #Personagens.append(Instancia())
-    Personagens[i].Posicao = Ponto (-2.5,0)
-    Personagens[i].Escala = Ponto (1,1)
+    modelo_nave = Modelos[0]  # Supondo que o Modelo 0 é a nave
+    centro_pivot_nave = Ponto(modelo_nave.nColunas / 2, modelo_nave.nLinhas * 0.1) # !!!!!!!!!!!!!!!!! Aqui onde altera aonde a nave é rotacionada !!!!!!!!!!!!!!!!!
+
+    Personagens[i].Posicao = Ponto (-2.5, 0)
+    Personagens[i].Escala = Ponto (1, 1)
     Personagens[i].Rotacao = ang
     Personagens[i].IdDoModelo = 0
     Personagens[i].Modelo = DesenhaPersonagemMatricial
-    Personagens[i].Pivot = Ponto(2.5,0)
-    Personagens[i].Direcao = Ponto(0,1) # direcao do movimento para a cima
-    Personagens[i].Direcao.rotacionaZ(ang) # direcao alterada para a direita
-    Personagens[i].Velocidade = 3 # move-se a 5 m/s
+    Personagens[i].Pivot = centro_pivot_nave  # Aqui define o ponto central como pivot
+    Personagens[i].Direcao = Ponto(0, 1)
+    Personagens[i].Direcao.rotacionaZ(ang)
+    Personagens[i].Velocidade = 3
 
     # Salva os dados iniciais do personagem i na area de backup
     Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i]) 

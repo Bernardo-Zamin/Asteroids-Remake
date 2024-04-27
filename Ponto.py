@@ -46,12 +46,27 @@ class Ponto:
             y = self.y * other
             return Ponto(x, y)
 
-    def rotacionaZ(self, angulo):
-        anguloRad = angulo * 3.14159265359/180.0
-        xr = self.x*math.cos(anguloRad) - self.y*math.sin(anguloRad)
-        yr = self.x*math.sin(anguloRad) + self.y*math.cos(anguloRad)
-        self.x = xr
-        self.y = yr
+    # def rotacionaZ(self, angulo):
+    #     anguloRad = angulo * 3.14159265359/180.0
+    #     xr = self.x*math.cos(anguloRad) - self.y*math.sin(anguloRad)
+    #     yr = self.x*math.sin(anguloRad) + self.y*math.cos(anguloRad)
+    #     self.x = xr
+    #     self.y = yr
+
+    def rotacionaZ(self, angulo, centro=None):
+        if centro is None:
+            centro = Ponto()  # Se nenhum centro for fornecido, usa a origem
+        anguloRad = angulo * math.pi / 180.0
+        # Translada o ponto para a origem baseado no centro de rotação
+        x_temp = self.x - centro.x
+        y_temp = self.y - centro.y
+        # Realiza a rotação em torno da origem
+        xr = x_temp * math.cos(anguloRad) - y_temp * math.sin(anguloRad)
+        yr = x_temp * math.sin(anguloRad) + y_temp * math.cos(anguloRad)
+        # Translada o ponto de volta para a posição original ajustada ao centro
+        self.x = xr + centro.x
+        self.y = yr + centro.y
+
 
     def rotacionaY(self, angulo):
         anguloRad = angulo* 3.14159265359/180.0
