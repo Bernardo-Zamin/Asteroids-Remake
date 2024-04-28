@@ -143,16 +143,31 @@ ESCAPE = b'\x1b'
 
 def keyboard(*args):
     global imprimeEnvelope
-    print(args)
-    # If escape is pressed, kill everything.
-    if args[0] == b'q':
+    key = args[0]
+    #print(key)
+
+    # Configurações para as teclas WASD
+    if key == b'w':  # W - Move para frente
+        Personagens[0].Posicao += Personagens[0].Direcao * 5
+    elif key == b's':  # S - Move para trás
+        Personagens[0].Posicao -= Personagens[0].Direcao * 5
+    elif key == b'a':  # A - Rotaciona para esquerda
+        Personagens[0].Rotacao += 5
+        Personagens[0].Direcao.rotacionaZ(+5)
+    elif key == b'd':  # D - Rotaciona para direita
+        Personagens[0].Rotacao -= 5
+        Personagens[0].Direcao.rotacionaZ(-5)
+
+    # Para alternar o estado de visualização do envelope de colisão
+    if key == b'e':
+        imprimeEnvelope = not imprimeEnvelope
+
+    # Comandos adicionais, como antes
+    if key == b'q' or key == ESCAPE:
         os._exit(0)
-    if args[0] == ESCAPE:
-        os._exit(0)
-    if args[0] == b'e':
-        imprimeEnvelope = True
-# Forca o redesenho da tela
+
     glutPostRedisplay()
+
 
 # **********************************************************************
 #  arrow_keys ( a_keys: int, x: int, y: int )
