@@ -61,6 +61,9 @@ TempoInicial = time.time()
 TempoTotal = time.time()
 TempoAnterior = time.time()
 
+tempo_para_mudar_direcao = 2.0  # tempo em segundos para mudar de direção
+tempo_desde_ultima_mudanca = 0.0
+
 # ***********************************************************************************
 
 
@@ -389,26 +392,41 @@ def AtualizaJogo():
             # print ("SEM Colisao")
 
 
-# ***********************************************************************************
 def AtualizaPersonagens(tempoDecorrido):
     global nInstancias
     for i in range(0, nInstancias):
-        # Atualiza a posição baseada na velocidade e direção
         Personagens[i].AtualizaPosicao(tempoDecorrido)
 
-        # Aplica a lógica de envolvimento apenas para a nave espacial (assumindo que seja o índice 0)
-
-        # Lógica de envolvimento para horizontal (eixo x)
+        # if i == 0:  # Lógica de envolvimento para a nave do jogador
+        # Lógica horizontal
         if Personagens[i].Posicao.x > LarguraDoUniverso:
             Personagens[i].Posicao.x -= 2 * LarguraDoUniverso
         elif Personagens[i].Posicao.x < -LarguraDoUniverso:
             Personagens[i].Posicao.x += 2 * LarguraDoUniverso
 
-        # Lógica de envolvimento para vertical (eixo y)
+        # Lógica vertical
         if Personagens[i].Posicao.y > LarguraDoUniverso:
             Personagens[i].Posicao.y -= 2 * LarguraDoUniverso
         elif Personagens[i].Posicao.y < -LarguraDoUniverso:
             Personagens[i].Posicao.y += 2 * LarguraDoUniverso
+        # else:  # Lógica para naves inimigas
+        #     if Personagens[i].Posicao.x > LarguraDoUniverso or Personagens[i].Posicao.x < -LarguraDoUniverso:
+        #         Personagens[i].Direcao.x *= -1  # Inverte a direção horizontal
+        #         Personagens[i].Rotacao = (Personagens[i].Rotacao + 180) % 360  # Ajusta a rotação para oposta
+
+        #     if Personagens[i].Posicao.y > LarguraDoUniverso or Personagens[i].Posicao.y < -LarguraDoUniverso:
+        #         Personagens[i].Direcao.y *= -1  # Inverte a direção vertical
+        #         Personagens[i].Rotacao = (Personagens[i].Rotacao  + 180) % 360  # Ajusta a rotação para oposta
+
+        #     # Normaliza a direção após a mudança
+        #     magnitude = math.sqrt(Personagens[i].Direcao.x**2 + Personagens[i].Direcao.y**2)
+        #     if magnitude > 0:
+        #         Personagens[i].Direcao.x /= magnitude
+        #         Personagens[i].Direcao.y /= magnitude
+
+        #     # Ajuste para manter a nave dentro dos limites do universo
+        #     Personagens[i].Posicao.x = max(min(Personagens[i].Posicao.x, LarguraDoUniverso), -LarguraDoUniverso)
+        #     Personagens[i].Posicao.y = max(min(Personagens[i].Posicao.y, LarguraDoUniverso), -LarguraDoUniverso)
 
     AtualizaJogo()
 
@@ -434,6 +452,9 @@ def CarregaModelos():
     Modelos[2].leModelo("NaveInimiga1.txt")
     Modelos.append(ModeloMatricial())
     Modelos[3].leModelo("NaveInimiga2.txt")
+    Modelos.append(ModeloMatricial())
+    Modelos[4].leModelo("NaveInimiga3.txt")
+
 
     print("Modelo 0")
     Modelos[0].Imprime()
@@ -443,6 +464,8 @@ def CarregaModelos():
     Modelos[2].Imprime()
     print("Modelo 3")
     Modelos[3].Imprime()
+    print("Modelo 4")
+    Modelos[4].Imprime()
 
 
 def DesenhaCelula():
@@ -534,7 +557,7 @@ def CriaInstancias():
     Personagens[i].Pivot = Ponto(0.5, 0)
     Personagens[i].Direcao = Ponto(0, 1)  # direcao do movimento para a cima
     Personagens[i].Direcao.rotacionaZ(ang)  # direcao alterada para a direita
-    Personagens[i].Velocidade = 3   # move-se a 3 m/s
+    Personagens[i].Velocidade = 15   # move-se a 3 m/s
 
     # Salva os dados iniciais do personagem i na area de backup
     Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
@@ -545,12 +568,12 @@ def CriaInstancias():
         Personagens[i].Posicao = GeraPosicaoAleatoria()
         Personagens[i].Escala = Ponto(1, 1)
         Personagens[i].Rotacao = random.randint(0, 360)
-        Personagens[i].IdDoModelo = j  # Agora 'j' será 1 ou 2, correspondendo aos modelos inimigos
+        Personagens[i].IdDoModelo = j + 1  # Agora 'j' será 1 ou 2, correspondendo aos modelos inimigos
         Personagens[i].Modelo = DesenhaPersonagemMatricial
         Personagens[i].Pivot = Ponto(0.5, 0)  # Pivot no centro
         Personagens[i].Direcao = Ponto(0, 1)
         Personagens[i].Direcao.rotacionaZ(Personagens[i].Rotacao)
-        Personagens[i].Velocidade = random.uniform(0.5, 3.0)  # Velocidade aleatória
+        Personagens[i].Velocidade = 15  # Velocidade aleatória
 
         Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
 
