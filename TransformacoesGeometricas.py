@@ -25,6 +25,7 @@ from Poligonos import *
 from Instancia import *
 from ModeloMatricial import *
 from ListaDeCoresRGB import *
+from Meteoros import *
 from datetime import datetime
 import time
 import random
@@ -49,6 +50,8 @@ AREA_DE_BACKUP = 50  # posicao a partir da qual sao armazenados backups dos pers
 # lista de modelos
 Modelos = []
 
+meteoros = []
+
 angulo = 0.0
 PersonagemAtual = -1
 nInstancias = 0
@@ -61,8 +64,8 @@ TempoInicial = time.time()
 TempoTotal = time.time()
 TempoAnterior = time.time()
 
-tempo_para_mudar_direcao = 2.0  # tempo em segundos para mudar de direção
-tempo_desde_ultima_mudanca = 0.0
+# tempo_para_mudar_direcao = 2.0  # tempo em segundos para mudar de direção
+# tempo_desde_ultima_mudanca = 0.0
 
 # ***********************************************************************************
 
@@ -76,6 +79,7 @@ def init():
     clear()  # limpa o console
     CarregaModelos()
     CriaInstancias()
+    CriaMeteoros()
 
     LarguraDoUniverso = 150
     Min = Ponto(-LarguraDoUniverso, -LarguraDoUniverso)
@@ -126,9 +130,8 @@ def display():
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-    # glLineWidth(3)
-    glColor3f(0, 0, 1)  # R, G, B  [0..1]
-    DesenhaEixos()
+    glColor3f(1, 1, 1)
+    DesenhaMeteoros()
 
     DesenhaPersonagens()
     AtualizaPersonagens(DiferencaDeTempo)
@@ -240,6 +243,29 @@ def clear():
         print("*******************")
         print("PWD: ", os.getcwd())
 
+
+
+def CriaMeteoros():
+    for i in range(300):  # Cria 300 meteoros
+        posicao = GeraPosicaoAleatoria()
+        tamanho = random.uniform(0.1, 0.5)  # Tamanho aleatório para cada meteoro
+        velocidade = random.uniform(0.1, 0.5)  # Velocidade aleatória para movimento opcional
+        meteoros.append(Meteoro(posicao, tamanho, velocidade))
+
+def DesenhaMeteoros():
+    for meteoro in meteoros:
+        glPushMatrix()
+        glTranslate(meteoro.posicao.x, meteoro.posicao.y, 0)  # Posiciona o meteoro
+        DesenhaMeteoro(meteoro.tamanho)  # Desenha o meteoro
+        glPopMatrix()
+
+def DesenhaMeteoro(tamanho):
+    glBegin(GL_QUADS)
+    glVertex2f(-tamanho, -tamanho)
+    glVertex2f(-tamanho, tamanho)
+    glVertex2f(tamanho, tamanho)
+    glVertex2f(tamanho, -tamanho)
+    glEnd()
 
 def DesenhaLinha(P1, P2):
     glBegin(GL_LINES)
