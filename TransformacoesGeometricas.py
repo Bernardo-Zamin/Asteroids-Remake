@@ -91,9 +91,22 @@ def init():
 
 
 def animate():
-    global angulo
+    global angulo, meteoros
     angulo = angulo + 1
+
+    # Atualiza a posição dos meteoros
+    for meteoro in meteoros:
+        meteoro.posicao.x += meteoro.velocidade * meteoro.direcao.x
+        meteoro.posicao.y += meteoro.velocidade * meteoro.direcao.y
+        
+        # Se o meteoro sair da tela, reinicialize sua posição
+        if meteoro.posicao.x > LarguraDoUniverso or meteoro.posicao.x < -LarguraDoUniverso:
+            meteoro.posicao.x = GeraPosicaoAleatoria().x
+        if meteoro.posicao.y > LarguraDoUniverso or meteoro.posicao.y < -LarguraDoUniverso:
+            meteoro.posicao.y = GeraPosicaoAleatoria().y
+
     glutPostRedisplay()
+
 
 
 # ***********************************************************************************
@@ -246,11 +259,13 @@ def clear():
 
 
 def CriaMeteoros():
-    for i in range(300):  # Cria 300 meteoros
+    for i in range(170):  # Cria 170 meteoros
         posicao = GeraPosicaoAleatoria()
         tamanho = random.uniform(0.1, 0.5)  # Tamanho aleatório para cada meteoro
-        velocidade = random.uniform(0.1, 0.5)  # Velocidade aleatória para movimento opcional
-        meteoros.append(Meteoro(posicao, tamanho, velocidade))
+        velocidade = random.uniform(0.01, 0.015)  # Velocidade muito pequena para movimento sutil
+        direcao = Ponto(random.uniform(-1, 1), random.uniform(-1, 1))  # Direção aleatória
+        meteoros.append(Meteoro(posicao, tamanho, velocidade, direcao))
+
 
 def DesenhaMeteoros():
     for meteoro in meteoros:
