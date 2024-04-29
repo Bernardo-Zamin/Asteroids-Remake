@@ -438,40 +438,50 @@ def AtualizaJogo():
 
 def AtualizaPersonagens(tempoDecorrido):
     global nInstancias
+    LarguraDoUniverso = 150
     for i in range(0, nInstancias):
         Personagens[i].AtualizaPosicao(tempoDecorrido)
 
-        # if i == 0:  # Lógica de envolvimento para a nave do jogador
+        if i == 0:  # Lógica de envolvimento para a nave do jogador
         # Lógica horizontal
-        if Personagens[i].Posicao.x > LarguraDoUniverso:
-            Personagens[i].Posicao.x -= 2 * LarguraDoUniverso
-        elif Personagens[i].Posicao.x < -LarguraDoUniverso:
-            Personagens[i].Posicao.x += 2 * LarguraDoUniverso
+            if Personagens[i].Posicao.x > LarguraDoUniverso:
+                Personagens[i].Posicao.x -= 2 * LarguraDoUniverso
+            elif Personagens[i].Posicao.x < -LarguraDoUniverso:
+                Personagens[i].Posicao.x += 2 * LarguraDoUniverso
 
-        # Lógica vertical
-        if Personagens[i].Posicao.y > LarguraDoUniverso:
-            Personagens[i].Posicao.y -= 2 * LarguraDoUniverso
-        elif Personagens[i].Posicao.y < -LarguraDoUniverso:
-            Personagens[i].Posicao.y += 2 * LarguraDoUniverso
+            # Lógica vertical
+            if Personagens[i].Posicao.y > LarguraDoUniverso:
+                Personagens[i].Posicao.y -= 2 * LarguraDoUniverso
+            elif Personagens[i].Posicao.y < -LarguraDoUniverso:
+                Personagens[i].Posicao.y += 2 * LarguraDoUniverso
+        else:
+            if Personagens[i].Posicao.x > LarguraDoUniverso:
+                Personagens[i].Posicao.x -= 2 * LarguraDoUniverso
+            elif Personagens[i].Posicao.x < -LarguraDoUniverso:
+                Personagens[i].Posicao.x += 2 * LarguraDoUniverso
+
+            # Lógica vertical
+            if Personagens[i].Posicao.y > LarguraDoUniverso:
+                Personagens[i].Posicao.y -= 2 * LarguraDoUniverso
+            elif Personagens[i].Posicao.y < -LarguraDoUniverso:
+                Personagens[i].Posicao.y += 2 * LarguraDoUniverso
         # else:  # Lógica para naves inimigas
         #     if Personagens[i].Posicao.x > LarguraDoUniverso or Personagens[i].Posicao.x < -LarguraDoUniverso:
-        #         Personagens[i].Posicao.x = LarguraDoUniverso/2
-        #         Personagens[i].Posicao.y = LarguraDoUniverso/2
-        #         # Personagens[i].Rotacao = (Personagens[i].Rotacao + 180) % 360  # Ajusta a rotação para oposta
+        #         #Personagens[i].Posicao = Ponto(0,0)
+        #         Personagens[i].Rotacao = (Personagens[i].Rotacao + 180) % 360  # Ajusta a rotação para oposta
         #     if Personagens[i].Posicao.y > LarguraDoUniverso or Personagens[i].Posicao.y < -LarguraDoUniverso:
-        #         Personagens[i].Posicao.x = LarguraDoUniverso/2
-        #         Personagens[i].Posicao.y = LarguraDoUniverso/2  # Inverte a direção vertical
-        #         # Personagens[i].Rotacao = (Personagens[i].Rotacao  + 180) % 360  # Ajusta a rotação para oposta
+        #         #Personagens[i].Posicao = Ponto(0,0)
+        #         Personagens[i].Rotacao = (Personagens[i].Rotacao  + 180) % 360  # Ajusta a rotação para oposta
 
-        #     # Normaliza a direção após a mudança
+        #     #Normaliza a direção após a mudança
         #     magnitude = math.sqrt(Personagens[i].Direcao.x**2 + Personagens[i].Direcao.y**2)
         #     if magnitude > 0:
         #         Personagens[i].Direcao.x /= magnitude
         #         Personagens[i].Direcao.y /= magnitude
 
-            # Ajuste para manter a nave dentro dos limites do universo
-            # Personagens[i].Posicao.x = max(min(Personagens[i].Posicao.x, LarguraDoUniverso), -LarguraDoUniverso)
-            # Personagens[i].Posicao.y = max(min(Personagens[i].Posicao.y, LarguraDoUniverso), -LarguraDoUniverso)
+        #     #Ajuste para manter a nave dentro dos limites do universo
+        #     Personagens[i].Posicao.x = max(min(Personagens[i].Posicao.x, LarguraDoUniverso), -LarguraDoUniverso)
+        #     Personagens[i].Posicao.y = max(min(Personagens[i].Posicao.y, LarguraDoUniverso), -LarguraDoUniverso)
 
     AtualizaJogo()
 
@@ -604,7 +614,7 @@ def CriaInstancias():
 
     # Personagens[0].ImprimeEnvelope("Envelope:")
     # Nave Inimiga
-    for j in range(1, 4):
+    for j in range(1, 5):
         i = i + 1
         ang = 90
         Personagens[i].Posicao = GeraPosicaoAleatoria()
