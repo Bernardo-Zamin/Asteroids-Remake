@@ -170,15 +170,15 @@ def keyboard(*args):
 
     # Configurações para as teclas WASD
     if key == b'w':  # W - Move para frente
-        Personagens[0].Posicao += Personagens[0].Direcao * 5
+        Personagens[0].Posicao += Personagens[0].Direcao * 10
     elif key == b's':  # S - Move para trás
-        Personagens[0].Posicao -= Personagens[0].Direcao * 5
+        Personagens[0].Posicao -= Personagens[0].Direcao * 10
     elif key == b'a':  # A - Rotaciona para esquerda
-        Personagens[0].Rotacao += 5
-        Personagens[0].Direcao.rotacionaZ(+5)
+        Personagens[0].Rotacao += 10
+        Personagens[0].Direcao.rotacionaZ(+10)
     elif key == b'd':  # D - Rotaciona para direita
         Personagens[0].Rotacao -= 5
-        Personagens[0].Direcao.rotacionaZ(-5)
+        Personagens[0].Direcao.rotacionaZ(-10)
 
     # Para alternar o estado de visualização do envelope de colisão
     if key == b'e':
@@ -198,17 +198,17 @@ def keyboard(*args):
 
 def arrow_keys(a_keys: int, x: int, y: int):
     if a_keys == GLUT_KEY_UP:         # Se pressionar UP
-        Personagens[0].Posicao += Personagens[0].Direcao * 5
+        Personagens[0].Posicao += Personagens[0].Direcao * 10
     if a_keys == GLUT_KEY_DOWN:       # Se pressionar DOWN
-        Personagens[0].Posicao -= Personagens[0].Direcao * 5
+        Personagens[0].Posicao -= Personagens[0].Direcao * 10
         pass
     if a_keys == GLUT_KEY_LEFT:       # Se pressionar LEFT
-        Personagens[0].Rotacao += 5
-        Personagens[0].Direcao.rotacionaZ(+5)
+        Personagens[0].Rotacao += 10
+        Personagens[0].Direcao.rotacionaZ(+10)
 
     if a_keys == GLUT_KEY_RIGHT:      # Se pressionar RIGHT
-        Personagens[0].Rotacao -= 5
-        Personagens[0].Direcao.rotacionaZ(-5)
+        Personagens[0].Rotacao -= 10
+        Personagens[0].Direcao.rotacionaZ(-10)
 
     glutPostRedisplay()
 
@@ -454,12 +454,13 @@ def AtualizaPersonagens(tempoDecorrido):
             Personagens[i].Posicao.y += 2 * LarguraDoUniverso
         # else:  # Lógica para naves inimigas
         #     if Personagens[i].Posicao.x > LarguraDoUniverso or Personagens[i].Posicao.x < -LarguraDoUniverso:
-        #         Personagens[i].Direcao.x *= -1  # Inverte a direção horizontal
-        #         Personagens[i].Rotacao = (Personagens[i].Rotacao + 180) % 360  # Ajusta a rotação para oposta
-
+        #         Personagens[i].Posicao.x = LarguraDoUniverso/2
+        #         Personagens[i].Posicao.y = LarguraDoUniverso/2
+        #         # Personagens[i].Rotacao = (Personagens[i].Rotacao + 180) % 360  # Ajusta a rotação para oposta
         #     if Personagens[i].Posicao.y > LarguraDoUniverso or Personagens[i].Posicao.y < -LarguraDoUniverso:
-        #         Personagens[i].Direcao.y *= -1  # Inverte a direção vertical
-        #         Personagens[i].Rotacao = (Personagens[i].Rotacao  + 180) % 360  # Ajusta a rotação para oposta
+        #         Personagens[i].Posicao.x = LarguraDoUniverso/2
+        #         Personagens[i].Posicao.y = LarguraDoUniverso/2  # Inverte a direção vertical
+        #         # Personagens[i].Rotacao = (Personagens[i].Rotacao  + 180) % 360  # Ajusta a rotação para oposta
 
         #     # Normaliza a direção após a mudança
         #     magnitude = math.sqrt(Personagens[i].Direcao.x**2 + Personagens[i].Direcao.y**2)
@@ -467,9 +468,9 @@ def AtualizaPersonagens(tempoDecorrido):
         #         Personagens[i].Direcao.x /= magnitude
         #         Personagens[i].Direcao.y /= magnitude
 
-        #     # Ajuste para manter a nave dentro dos limites do universo
-        #     Personagens[i].Posicao.x = max(min(Personagens[i].Posicao.x, LarguraDoUniverso), -LarguraDoUniverso)
-        #     Personagens[i].Posicao.y = max(min(Personagens[i].Posicao.y, LarguraDoUniverso), -LarguraDoUniverso)
+            # Ajuste para manter a nave dentro dos limites do universo
+            Personagens[i].Posicao.x = max(min(Personagens[i].Posicao.x, LarguraDoUniverso), -LarguraDoUniverso)
+            Personagens[i].Posicao.y = max(min(Personagens[i].Posicao.y, LarguraDoUniverso), -LarguraDoUniverso)
 
     AtualizaJogo()
 
@@ -615,12 +616,11 @@ def CriaInstancias():
 
     # Salva os dados iniciais do personagem i na area de backup
     Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
-    nInstancias = i+1
 
     for j in range(1, 4):  # Começando de 1 até 3, evitando o modelo 0 da nave espacial
         i += 1
         Personagens[i].Posicao = GeraPosicaoAleatoria()
-        Personagens[i].Escala = Ponto(1, 1)
+        Personagens[i].Escala = Ponto(0, 5)
         Personagens[i].Rotacao = random.randint(0, 360)
         Personagens[i].IdDoModelo = j + 1  # Agora 'j' será 1 ou 2, correspondendo aos modelos inimigos
         Personagens[i].Modelo = DesenhaPersonagemMatricial
@@ -628,9 +628,33 @@ def CriaInstancias():
         Personagens[i].Direcao = Ponto(0, 1)
         Personagens[i].Direcao.rotacionaZ(Personagens[i].Rotacao)
         Personagens[i].Velocidade = 15  # Velocidade aleatória
-
         Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
+    
+       
 
+        # Espaçamento entre os corações
+        espacamento = 5
+        largura_coracao = 18
+        altura_coracao = 14
+        LarguraDoUniverso = 150 
+        # Posição inicial dos corações no canto superior direito
+        x = LarguraDoUniverso - largura_coracao - espacamento
+        y = LarguraDoUniverso - altura_coracao - espacamento
+
+        for k in range(1, 4):
+            i += 1 
+            Personagens[i].Posicao = Ponto(x, y)
+            Personagens[i].Escala = Ponto(1, 1)
+            Personagens[i].Rotacao = 0
+            Personagens[i].IdDoModelo = 5
+            Personagens[i].Modelo = DesenhaPersonagemMatricial
+            Personagens[i].Pivot = Ponto(0, 0)  # Pivot no centro
+            Personagens[i].Direcao = Ponto(0, 0)
+            Personagens[i].Direcao.rotacionaZ(Personagens[i].Rotacao)
+            Personagens[i].Velocidade = 0  # Velocidade aleatória
+            Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
+            
+            x -= largura_coracao + espacamento  # Muda a posição X para o próximo coração
     
     nInstancias = i + 1 
 
