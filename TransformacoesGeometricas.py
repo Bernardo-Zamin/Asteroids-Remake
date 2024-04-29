@@ -177,7 +177,7 @@ def keyboard(*args):
         Personagens[0].Rotacao += 10
         Personagens[0].Direcao.rotacionaZ(+10)
     elif key == b'd':  # D - Rotaciona para direita
-        Personagens[0].Rotacao -= 5
+        Personagens[0].Rotacao -= 10
         Personagens[0].Direcao.rotacionaZ(-10)
 
     # Para alternar o estado de visualização do envelope de colisão
@@ -469,8 +469,8 @@ def AtualizaPersonagens(tempoDecorrido):
         #         Personagens[i].Direcao.y /= magnitude
 
             # Ajuste para manter a nave dentro dos limites do universo
-            Personagens[i].Posicao.x = max(min(Personagens[i].Posicao.x, LarguraDoUniverso), -LarguraDoUniverso)
-            Personagens[i].Posicao.y = max(min(Personagens[i].Posicao.y, LarguraDoUniverso), -LarguraDoUniverso)
+            # Personagens[i].Posicao.x = max(min(Personagens[i].Posicao.x, LarguraDoUniverso), -LarguraDoUniverso)
+            # Personagens[i].Posicao.y = max(min(Personagens[i].Posicao.y, LarguraDoUniverso), -LarguraDoUniverso)
 
     AtualizaJogo()
 
@@ -630,32 +630,28 @@ def CriaInstancias():
         Personagens[i].Velocidade = 15  # Velocidade aleatória
         Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
     
-       
+    # Espaçamento entre os corações
+    espacamento = 5
+    largura_coracao = 18
+    altura_coracao = 14
+    LarguraDoUniverso = 150 
+    # Posição inicial dos corações no canto superior direito
+    x = LarguraDoUniverso - largura_coracao - espacamento
+    y = LarguraDoUniverso - altura_coracao - espacamento
+    for k in range(1, 4):
+        i += 1 
+        Personagens[i].Posicao = Ponto(x, y)
+        Personagens[i].Escala = Ponto(1, 1)
+        Personagens[i].Rotacao = 0
+        Personagens[i].IdDoModelo = 5
+        Personagens[i].Modelo = DesenhaPersonagemMatricial
+        Personagens[i].Pivot = Ponto(0, 0)  # Pivot no centro
+        Personagens[i].Direcao = Ponto(0, 0)
+        Personagens[i].Direcao.rotacionaZ(Personagens[i].Rotacao)
+        Personagens[i].Velocidade = 0  # Velocidade aleatória
+        Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
+        x -= largura_coracao + espacamento  # Muda a posição X para o próximo coração
 
-        # Espaçamento entre os corações
-        espacamento = 5
-        largura_coracao = 18
-        altura_coracao = 14
-        LarguraDoUniverso = 150 
-        # Posição inicial dos corações no canto superior direito
-        x = LarguraDoUniverso - largura_coracao - espacamento
-        y = LarguraDoUniverso - altura_coracao - espacamento
-
-        for k in range(1, 4):
-            i += 1 
-            Personagens[i].Posicao = Ponto(x, y)
-            Personagens[i].Escala = Ponto(1, 1)
-            Personagens[i].Rotacao = 0
-            Personagens[i].IdDoModelo = 5
-            Personagens[i].Modelo = DesenhaPersonagemMatricial
-            Personagens[i].Pivot = Ponto(0, 0)  # Pivot no centro
-            Personagens[i].Direcao = Ponto(0, 0)
-            Personagens[i].Direcao.rotacionaZ(Personagens[i].Rotacao)
-            Personagens[i].Velocidade = 0  # Velocidade aleatória
-            Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
-            
-            x -= largura_coracao + espacamento  # Muda a posição X para o próximo coração
-    
     nInstancias = i + 1 
 
 
