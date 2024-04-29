@@ -64,6 +64,8 @@ TempoInicial = time.time()
 TempoTotal = time.time()
 TempoAnterior = time.time()
 
+vidas = 3 
+
 # tempo_para_mudar_direcao = 2.0  # tempo em segundos para mudar de direção
 # tempo_desde_ultima_mudanca = 0.0
 
@@ -148,6 +150,7 @@ def display():
 
     DesenhaPersonagens()
     AtualizaPersonagens(DiferencaDeTempo)
+
 
     glutSwapBuffers()
     TempoAnterior = TempoAtual
@@ -259,7 +262,7 @@ def clear():
 
 
 def CriaMeteoros():
-    for i in range(170):  # Cria 170 meteoros
+    for i in range(170):  # Cria 170x11 meteoros
         posicao = GeraPosicaoAleatoria()
         tamanho = random.uniform(0.1, 0.5)  # Tamanho aleatório para cada meteoro
         velocidade = random.uniform(0.01, 0.015)  # Velocidade muito pequena para movimento sutil
@@ -286,7 +289,7 @@ def DesenhaLinha(P1, P2):
     glBegin(GL_LINES)
     glVertex3f(P1.x, P1.y, P1.z)
     glVertex3f(P2.x, P2.y, P2.z)
-    glEnd()
+    glEnd() 
 
 # ****************************************************************
 
@@ -327,7 +330,6 @@ def TestaColisao(P1, P2) -> bool:
 
     # Testa todas as arestas do envelope de
     # um objeto contra as arestas do outro
-
     for i in range(4):
         A = Personagens[P1].Envelope[i]
         B = Personagens[P1].Envelope[(i+1) % 4]
@@ -484,7 +486,10 @@ def DesenhaPersonagens():
 
 # ***********************************************************************************
 def CarregaModelos():
+    global Modelos
     # Nave tem q ser o modelo 0 por conta da alteracao q fiz na rotacao de Z
+
+
     Modelos.append(ModeloMatricial())
     Modelos[0].leModelo("MatrizNave.txt")
     Modelos.append(ModeloMatricial())
@@ -495,6 +500,11 @@ def CarregaModelos():
     Modelos[3].leModelo("NaveInimiga2.txt")
     Modelos.append(ModeloMatricial())
     Modelos[4].leModelo("NaveInimiga3.txt")
+    Modelos.append(ModeloMatricial())
+    Modelos[5].leModelo("Vida.txt")
+    Modelos.append(ModeloMatricial())
+    Modelos[6].leModelo("VidaPos.txt")
+
 
 
     print("Modelo 0")
@@ -507,7 +517,10 @@ def CarregaModelos():
     Modelos[3].Imprime()
     print("Modelo 4")
     Modelos[4].Imprime()
-
+    print("Modelo 5")
+    Modelos[5].Imprime()
+    print("Modelo 6")
+    Modelos[6].Imprime()
 
 def DesenhaCelula():
     glBegin(GL_QUADS)
@@ -618,9 +631,8 @@ def CriaInstancias():
 
         Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
 
-
     
-    nInstancias = i + 1
+    nInstancias = i + 1 
 
 
 # ***********************************************************************************
