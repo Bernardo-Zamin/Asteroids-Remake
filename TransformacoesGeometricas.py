@@ -262,7 +262,7 @@ def clear():
 
 
 def CriaMeteoros():
-    for i in range(170):  # Cria 170x11 meteoros
+    for i in range(170):  # Cria 170 meteoros
         posicao = GeraPosicaoAleatoria()
         tamanho = random.uniform(0.1, 0.5)  # Tamanho aleatório para cada meteoro
         velocidade = random.uniform(0.01, 0.015)  # Velocidade muito pequena para movimento sutil
@@ -500,8 +500,6 @@ def DesenhaPersonagens():
 def CarregaModelos():
     global Modelos
     # Nave tem q ser o modelo 0 por conta da alteracao q fiz na rotacao de Z
-
-
     Modelos.append(ModeloMatricial())
     Modelos[0].leModelo("MatrizNave.txt")
     Modelos.append(ModeloMatricial())
@@ -625,11 +623,11 @@ def CriaInstancias():
         Personagens[i].Pivot = Ponto(0.5, 0)
         Personagens[i].Direcao = Ponto(0, 1)  # direcao do movimento para a cima
         Personagens[i].Direcao.rotacionaZ(ang)  # direcao alterada para a direita
-        Personagens[i].Velocidade = 15   # move-se a 3 m/s
+        Personagens[i].Velocidade = 15   # move-se a 15 m/s
         Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
         
     # Espaçamento entre os corações
-    espacamento = 5
+    espacamento = 2
     largura_coracao = 18
     altura_coracao = 14
     LarguraDoUniverso = 150 
@@ -639,14 +637,14 @@ def CriaInstancias():
     for k in range(1, 4):
         i += 1 
         Personagens[i].Posicao = Ponto(x, y)
-        Personagens[i].Escala = Ponto(1, 1)
+        Personagens[i].Escala = Ponto(0.8, 0.8)
         Personagens[i].Rotacao = 0
         Personagens[i].IdDoModelo = 5
         Personagens[i].Modelo = DesenhaPersonagemMatricial
-        Personagens[i].Pivot = Ponto(0, 0)  # Pivot no centro
+        Personagens[i].Pivot = Ponto(0, 0)  
         Personagens[i].Direcao = Ponto(0, 0)
         Personagens[i].Direcao.rotacionaZ(Personagens[i].Rotacao)
-        Personagens[i].Velocidade = 0  # Velocidade aleatória
+        Personagens[i].Velocidade = 0 
         Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
         x -= largura_coracao + espacamento  # Muda a posição X para o próximo coração
 
