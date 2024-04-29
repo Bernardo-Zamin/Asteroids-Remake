@@ -393,6 +393,7 @@ def AtualizaEnvelope(i):
 
 
 def GeraPosicaoAleatoria():
+    LarguraDoUniverso = 150 
     x = random.randint(-LarguraDoUniverso, LarguraDoUniverso)
     y = random.randint(-LarguraDoUniverso, LarguraDoUniverso)
     return Ponto(x, y)
@@ -579,6 +580,7 @@ def DesenhaPersonagemMatricial():
 def CriaInstancias():
     global Personagens, nInstancias
 
+    # Nave (Jogador)
     i = 0
     ang = -90.0
     modelo_nave = Modelos[0]  # Supondo que o Modelo 0 é a nave
@@ -601,35 +603,21 @@ def CriaInstancias():
     Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
 
     # Personagens[0].ImprimeEnvelope("Envelope:")
-
-    i = i + 1
-    ang = 90
-    Personagens[i].Posicao = Ponto(13.5, 0)
-    Personagens[i].Escala = Ponto(1, 1)
-    Personagens[i].Rotacao = ang
-    Personagens[i].IdDoModelo = 1
-    Personagens[i].Modelo = DesenhaPersonagemMatricial
-    Personagens[i].Pivot = Ponto(0.5, 0)
-    Personagens[i].Direcao = Ponto(0, 1)  # direcao do movimento para a cima
-    Personagens[i].Direcao.rotacionaZ(ang)  # direcao alterada para a direita
-    Personagens[i].Velocidade = 15   # move-se a 3 m/s
-
-    # Salva os dados iniciais do personagem i na area de backup
-    Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
-
-    for j in range(1, 4):  # Começando de 1 até 3, evitando o modelo 0 da nave espacial
-        i += 1
+    # Nave Inimiga
+    for j in range(1, 4):
+        i = i + 1
+        ang = 90
         Personagens[i].Posicao = GeraPosicaoAleatoria()
-        Personagens[i].Escala = Ponto(0, 5)
-        Personagens[i].Rotacao = random.randint(0, 360)
-        Personagens[i].IdDoModelo = j + 1  # Agora 'j' será 1 ou 2, correspondendo aos modelos inimigos
+        Personagens[i].Escala = Ponto(1, 1)
+        Personagens[i].Rotacao = ang
+        Personagens[i].IdDoModelo = j
         Personagens[i].Modelo = DesenhaPersonagemMatricial
-        Personagens[i].Pivot = Ponto(0.5, 0)  # Pivot no centro
-        Personagens[i].Direcao = Ponto(0, 1)
-        Personagens[i].Direcao.rotacionaZ(Personagens[i].Rotacao)
-        Personagens[i].Velocidade = 15  # Velocidade aleatória
+        Personagens[i].Pivot = Ponto(0.5, 0)
+        Personagens[i].Direcao = Ponto(0, 1)  # direcao do movimento para a cima
+        Personagens[i].Direcao.rotacionaZ(ang)  # direcao alterada para a direita
+        Personagens[i].Velocidade = 15   # move-se a 3 m/s
         Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
-    
+        
     # Espaçamento entre os corações
     espacamento = 5
     largura_coracao = 18
