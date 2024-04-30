@@ -22,6 +22,7 @@ class Instancia:
         self.Rotacao:float = 0.0
         self.Modelo = None
         self.t = 0.0
+        self.tiros = []
 
         self.IdDoModelo = 0;
         self.Pivot = Ponto (0,0,0) 
@@ -31,7 +32,21 @@ class Instancia:
         self.PosicaoDoPersonagem = Ponto(0,0,0)
         for i in range(4):
             self.Envelope += [Ponto()]
-        
+    
+    def dispara_tiro(self):
+        if len(self.tiros) < 10:  # Permite até 10 tiros ativos simultaneamente
+            novo_tiro = Tiro(posicao=self.posicao, direcao=self.direcao)
+            self.tiros.append(novo_tiro)
+
+    def atualiza_tiros(self):
+        for tiro in self.tiros:
+            tiro.atualiza()
+            if tiro.posicao.x > Max.x or tiro.posicao.x < Min.x or tiro.posicao.y > Max.y or tiro.posicao.y < Min.y:
+                tiro.ativo = False  # Desativa o tiro se ele sair dos limites
+
+    def desenha_tiros(self):
+        for tiro in self.tiros:
+            tiro.desenha()
 
     """ Imprime os valores dos atributos da instancia """
     # Faz a impressao usando sobrecarga de funcao

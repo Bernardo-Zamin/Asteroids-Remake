@@ -26,6 +26,7 @@ from Instancia import *
 from ModeloMatricial import *
 from ListaDeCoresRGB import *
 from Meteoros import *
+from Tiro import *
 from datetime import datetime
 import time
 import random
@@ -66,6 +67,10 @@ TempoAnterior = time.time()
 
 vidas = 3 
 
+tiros = []
+max_tiros = 10
+tiros_ativos = []
+
 # tempo_para_mudar_direcao = 2.0  # tempo em segundos para mudar de direção
 # tempo_desde_ultima_mudanca = 0.0
 
@@ -93,8 +98,9 @@ def init():
 
 
 def animate():
-    global angulo, meteoros
+    global angulo, meteoros, tiros_ativos, tiros
     angulo = angulo + 1
+
 
     # Atualiza a posição dos meteoros
     for meteoro in meteoros:
@@ -106,6 +112,8 @@ def animate():
             meteoro.posicao.x = GeraPosicaoAleatoria().x
         if meteoro.posicao.y > LarguraDoUniverso or meteoro.posicao.y < -LarguraDoUniverso:
             meteoro.posicao.y = GeraPosicaoAleatoria().y
+    
+
 
     glutPostRedisplay()
 
@@ -164,7 +172,7 @@ ESCAPE = b'\x1b'
 
 
 def keyboard(*args):
-    global imprimeEnvelope
+    global imprimeEnvelope, tiros, max_tiros
     key = args[0]
     #print(key)
 
@@ -184,9 +192,14 @@ def keyboard(*args):
     if key == b'e':
         imprimeEnvelope = not imprimeEnvelope
 
+    # if key == b' ' and len(tiros) < max_tiros:
+    #     # atira 
+
     # Comandos adicionais, como antes
     if key == b'q' or key == ESCAPE:
         os._exit(0)
+
+
 
     glutPostRedisplay()
 
@@ -322,6 +335,7 @@ def DesenhaEixos():
 
 
 def TestaColisao(P1, P2) -> bool:
+    global Personagens
 
     # cout << "\n-----\n" << endl;
     # Personagens[Objeto1].ImprimeEnvelope("Envelope 1: ", "\n");
@@ -393,7 +407,7 @@ def AtualizaEnvelope(i):
 
 
 def GeraPosicaoAleatoria():
-    LarguraDoUniverso = 150 
+    global LarguraDoUniverso
     x = random.randint(-LarguraDoUniverso, LarguraDoUniverso)
     y = random.randint(-LarguraDoUniverso, LarguraDoUniverso)
     return Ponto(x, y)
@@ -511,9 +525,17 @@ def CarregaModelos():
     Modelos.append(ModeloMatricial())
     Modelos[4].leModelo("NaveInimiga3.txt")
     Modelos.append(ModeloMatricial())
-    Modelos[5].leModelo("Vida.txt")
+    Modelos[5].leModelo("NaveInimiga.txt")
     Modelos.append(ModeloMatricial())
-    Modelos[6].leModelo("VidaPos.txt")
+    Modelos[6].leModelo("NaveInimiga1.txt")
+    Modelos.append(ModeloMatricial())
+    Modelos[7].leModelo("NaveInimiga2.txt")
+    Modelos.append(ModeloMatricial())
+    Modelos[8].leModelo("NaveInimiga3.txt")
+    Modelos.append(ModeloMatricial())
+    Modelos[9].leModelo("Vida.txt")
+    Modelos.append(ModeloMatricial())
+    Modelos[10].leModelo("VidaPos.txt")
 
 
 
@@ -531,6 +553,14 @@ def CarregaModelos():
     Modelos[5].Imprime()
     print("Modelo 6")
     Modelos[6].Imprime()
+    print("Modelo 7")
+    Modelos[7].Imprime()
+    print("Modelo 8")
+    Modelos[8].Imprime()
+    print("Modelo 9")
+    Modelos[9].Imprime()
+    print("Modelo 10")
+    Modelos[10].Imprime()
 
 def DesenhaCelula():
     glBegin(GL_QUADS)
@@ -592,28 +622,22 @@ def CriaInstancias():
     i = 0
     ang = -90.0
     modelo_nave = Modelos[0]  # Supondo que o Modelo 0 é a nave
-    # !!!!!!!!!!!!!!!!! Aqui onde altera aonde a nave é rotacionada !!!!!!!!!!!!!!!!!
-    centro_pivot_nave = Ponto(modelo_nave.nColunas / 2,
-                              modelo_nave.nLinhas * 0.1)
+    centro_pivot_nave = Ponto(modelo_nave.nColunas / 2, modelo_nave.nLinhas * 0.1)
 
     Personagens[i].Posicao = Ponto(-2.5, 0)
     Personagens[i].Escala = Ponto(1, 1)
     Personagens[i].Rotacao = ang
     Personagens[i].IdDoModelo = 0
     Personagens[i].Modelo = DesenhaPersonagemMatricial
-    # Aqui define o ponto central como pivot
     Personagens[i].Pivot = centro_pivot_nave
     Personagens[i].Direcao = Ponto(0, 1)
     Personagens[i].Direcao.rotacionaZ(ang)
     Personagens[i].Velocidade = 5
-
-    # Salva os dados iniciais do personagem i na area de backup
     Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
 
-    # Personagens[0].ImprimeEnvelope("Envelope:")
     # Nave Inimiga
-    for j in range(1, 5):
-        i = i + 1
+    for j in range(1, 9):
+        i += 1
         ang = 90
         Personagens[i].Posicao = GeraPosicaoAleatoria()
         Personagens[i].Escala = Ponto(1, 1)
@@ -621,34 +645,31 @@ def CriaInstancias():
         Personagens[i].IdDoModelo = j
         Personagens[i].Modelo = DesenhaPersonagemMatricial
         Personagens[i].Pivot = Ponto(0.5, 0)
-        Personagens[i].Direcao = Ponto(0, 1)  # direcao do movimento para a cima
-        Personagens[i].Direcao.rotacionaZ(ang)  # direcao alterada para a direita
-        Personagens[i].Velocidade = 15   # move-se a 15 m/s
+        Personagens[i].Direcao = Ponto(0, 1)
+        Personagens[i].Direcao.rotacionaZ(ang)
+        Personagens[i].Velocidade = 15
         Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
-        
-    # Espaçamento entre os corações
-    espacamento = 2
-    largura_coracao = 18
-    altura_coracao = 14
-    LarguraDoUniverso = 150 
-    # Posição inicial dos corações no canto superior direito
-    x = LarguraDoUniverso - largura_coracao - espacamento
-    y = LarguraDoUniverso - altura_coracao - espacamento
-    for k in range(1, 4):
-        i += 1 
-        Personagens[i].Posicao = Ponto(x, y)
-        Personagens[i].Escala = Ponto(0.8, 0.8)
-        Personagens[i].Rotacao = 0
-        Personagens[i].IdDoModelo = 5
-        Personagens[i].Modelo = DesenhaPersonagemMatricial
-        Personagens[i].Pivot = Ponto(0, 0)  
-        Personagens[i].Direcao = Ponto(0, 0)
-        Personagens[i].Direcao.rotacionaZ(Personagens[i].Rotacao)
-        Personagens[i].Velocidade = 0 
-        Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
-        x -= largura_coracao + espacamento  # Muda a posição X para o próximo coração
 
-    nInstancias = i + 1 
+    # Corações
+    LarguraDoUniverso = 150
+    x = LarguraDoUniverso - 18  # largura_coracao
+    y = LarguraDoUniverso - 14  # altura_coracao
+    for k in range(3):
+        i += 1
+        Personagens[i].Posicao = Ponto(x, y)
+        Personagens[i].Escala = Ponto(0.9, 0.9)
+        Personagens[i].Rotacao = 0
+        Personagens[i].IdDoModelo = 9
+        Personagens[i].Modelo = DesenhaPersonagemMatricial
+        Personagens[i].Pivot = Ponto(0, 0)
+        Personagens[i].Direcao = Ponto(0, 0)
+        Personagens[i].Direcao.rotacionaZ(0)
+        Personagens[i].Velocidade = 0
+        Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
+        x -= 18  # Muda a posição X para o próximo coração
+
+    nInstancias = i + 1
+
 
 
 # ***********************************************************************************
