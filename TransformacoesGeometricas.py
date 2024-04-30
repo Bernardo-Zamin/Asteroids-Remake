@@ -26,7 +26,6 @@ from Instancia import *
 from ModeloMatricial import *
 from ListaDeCoresRGB import *
 from Meteoros import *
-from Tiro import *
 from datetime import datetime
 import time
 import random
@@ -98,7 +97,7 @@ def init():
 
 
 def animate():
-    global angulo, meteoros, tiros_ativos, tiros
+    global angulo, meteoros
     angulo = angulo + 1
 
 
@@ -172,7 +171,7 @@ ESCAPE = b'\x1b'
 
 
 def keyboard(*args):
-    global imprimeEnvelope, tiros, max_tiros
+    global imprimeEnvelope
     key = args[0]
     #print(key)
 
@@ -191,9 +190,6 @@ def keyboard(*args):
     # Para alternar o estado de visualização do envelope de colisão
     if key == b'e':
         imprimeEnvelope = not imprimeEnvelope
-
-    # if key == b' ' and len(tiros) < max_tiros:
-    #     # atira 
 
     # Comandos adicionais, como antes
     if key == b'q' or key == ESCAPE:
@@ -431,8 +427,7 @@ def AtualizaJogo():
             Personagens[i].ImprimeEnvelope("", "")
     imprimeEnvelope = False
 
-    # Feito o calculo, eh preciso testar todos os tiros e
-    # demais personagens contra o jogador
+
     for i in range(1, nInstancias):
         if TestaColisao(0, i):
             # neste exemplo, a posicao do tiro é gerada aleatoriamente apos a colisao
