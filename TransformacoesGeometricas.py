@@ -379,19 +379,19 @@ def AtualizaEnvelope(i):
 
     # Desenha o envelope
     # !!!!!!!!!!!!!!!!!!!!!!!!!!! Comentei aqui para que o envelope(hitbox) não seja desenhado !!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # SetColor(Red)
-    # glBegin(GL_LINE_LOOP)
-    # glVertex2f(A.x, A.y)
-    # glVertex2f(B.x, B.y)
-    # glVertex2f(C.x, C.y)
-    # glVertex2f(D.x, D.y)
-    # glEnd()
-    # if (imprimeEnvelope):
-    #     A.imprime("A:");
-    #     B.imprime("B:");
-    #     C.imprime("C:");
-    #     D.imprime("D:");
-    #     print("");
+    SetColor(Red)
+    glBegin(GL_LINE_LOOP)
+    glVertex2f(A.x, A.y)
+    glVertex2f(B.x, B.y)
+    glVertex2f(C.x, C.y)
+    glVertex2f(D.x, D.y)
+    glEnd()
+    if (imprimeEnvelope):
+        A.imprime("A:");
+        B.imprime("B:");
+        C.imprime("C:");
+        D.imprime("D:");
+        print("");
 
     Personagens[i].Envelope[0] = A
     Personagens[i].Envelope[1] = B
@@ -619,6 +619,9 @@ def CriaInstancias():
     modelo_nave = Modelos[0]  # Supondo que o Modelo 0 é a nave
     centro_pivot_nave = Ponto(modelo_nave.nColunas / 2, modelo_nave.nLinhas * 0.1)
 
+    modelo_inimiga = Modelos[1]
+    centro_pivot_nave_inimiga = Ponto(modelo_inimiga.nColunas / 2, modelo_inimiga.nLinhas * 0.1)
+
     Personagens[i].Posicao = Ponto(-2.5, 0)
     Personagens[i].Escala = Ponto(1, 1)
     Personagens[i].Rotacao = ang
@@ -639,7 +642,7 @@ def CriaInstancias():
         Personagens[i].Rotacao = ang
         Personagens[i].IdDoModelo = j
         Personagens[i].Modelo = DesenhaPersonagemMatricial
-        Personagens[i].Pivot = Ponto(0.5, 0)
+        Personagens[i].Pivot = centro_pivot_nave_inimiga
         Personagens[i].Direcao = Ponto(0, 1)
         Personagens[i].Direcao.rotacionaZ(ang)
         Personagens[i].Velocidade = 15
