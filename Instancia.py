@@ -9,7 +9,7 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from Ponto import *
-
+import random
 #import numpy as np
 
 
@@ -22,6 +22,8 @@ class Instancia:
         self.Rotacao:float = 0.0
         self.Modelo = None
         self.t = 0.0
+        self.tempo_para_proximo_tiro = random.randint(1, 5)
+        self.tipo = ''
 
         self.IdDoModelo = 0;
         self.Pivot = Ponto (0,0,0) 

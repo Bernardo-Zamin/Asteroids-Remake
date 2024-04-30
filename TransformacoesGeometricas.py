@@ -26,6 +26,7 @@ from Instancia import *
 from ModeloMatricial import *
 from ListaDeCoresRGB import *
 from Meteoros import *
+from Tiro import *
 from datetime import datetime
 import time
 import random
@@ -101,20 +102,30 @@ def animate():
     angulo = angulo + 1
 
 
-    # Atualiza a posição dos meteoros
+    atualizar_meteoros()
+    atualizar_tiros()
+    
+    glutPostRedisplay()
+
+def atualizar_tiros():
+    global tiros, LarguraDoUniverso
+    tiros_ativos = []
+    for tiro in tiros:
+        # Mover o tiro
+        tiro.posicao.x += tiro.direcao.x
+        tiro.posicao.y += tiro.direcao.y
+        # Manter tiro se dentro dos limites
+        if -LarguraDoUniverso < tiro.posicao.x < LarguraDoUniverso and -LarguraDoUniverso < tiro.posicao.y < LarguraDoUniverso:
+            tiros_ativos.append(tiro)
+    tiros = tiros_ativos
+
+def atualizar_meteoros():
+    global meteoros, LarguraDoUniverso
     for meteoro in meteoros:
         meteoro.posicao.x += meteoro.velocidade * meteoro.direcao.x
         meteoro.posicao.y += meteoro.velocidade * meteoro.direcao.y
-        
-        # Se o meteoro sair da tela, reinicialize sua posição
-        if meteoro.posicao.x > LarguraDoUniverso or meteoro.posicao.x < -LarguraDoUniverso:
-            meteoro.posicao.x = GeraPosicaoAleatoria().x
-        if meteoro.posicao.y > LarguraDoUniverso or meteoro.posicao.y < -LarguraDoUniverso:
-            meteoro.posicao.y = GeraPosicaoAleatoria().y
-    
-
-
-    glutPostRedisplay()
+        if abs(meteoro.posicao.x) > LarguraDoUniverso or abs(meteoro.posicao.y) > LarguraDoUniverso:
+            meteoro.posicao = GeraPosicaoAleatoria()
 
 
 
@@ -186,7 +197,9 @@ def keyboard(*args):
     elif key == b'd':  # D - Rotaciona para direita
         Personagens[0].Rotacao -= 10
         Personagens[0].Direcao.rotacionaZ(-10)
-
+    
+    elif key == b' ':  # Atirar
+        disparar_tiro(0)
     # Para alternar o estado de visualização do envelope de colisão
     if key == b'e':
         imprimeEnvelope = not imprimeEnvelope
@@ -199,6 +212,16 @@ def keyboard(*args):
 
     glutPostRedisplay()
 
+def disparar_tiro(index):
+    global tiros
+    inst = Personagens[index]
+    if hasattr(inst, 'posicao') and hasattr(inst, 'direcao'):
+        pos_tiro = Ponto(inst.posicao.x, inst.posicao.y)  # Posição inicial do tiro
+        direcao_tiro = Ponto(inst.direcao.x, inst.direcao.y)  # Direção do tiro
+        tiro = Tiro(posicao=pos_tiro, direcao=direcao_tiro)
+        tiros.append(tiro)
+    else:
+        print(f"Erro: A instância no índice {index} não possui os atributos necessários para disparar.")
 
 # **********************************************************************
 #  arrow_keys ( a_keys: int, x: int, y: int )
@@ -268,6 +291,20 @@ def clear():
         print("*******************")
         print("PWD: ", os.getcwd())
 
+
+def disparar_tiro(index):
+    global tiros
+    try:
+        inst = Personagens[index]
+        if hasattr(inst, 'Posicao'):
+            pos_tiro = Ponto(inst.Posicao.x, inst.Posicao.y + 1)  # Posição acima da nave
+            direcao_tiro = Ponto(inst.Direcao.x, inst.Direcao.y)
+            novo_tiro = Tiro(pos_tiro, direcao_tiro)
+            tiros.append(novo_tiro)
+        else:
+            print(f"Erro: A instância no índice {index} não possui o atributo 'posicao'.")
+    except IndexError:
+        print(f"Erro: Não existe instância no índice {index}.")
 
 
 def CriaMeteoros():
@@ -615,13 +652,12 @@ def CriaInstancias():
 
     # Nave (Jogador)
     i = 0
-    ang = -90.0
+    ang = 360.0
     modelo_nave = Modelos[0]  # Supondo que o Modelo 0 é a nave
     centro_pivot_nave = Ponto(modelo_nave.nColunas / 2, modelo_nave.nLinhas * 0.1)
 
     modelo_inimiga = Modelos[1]
     centro_pivot_nave_inimiga = Ponto(modelo_inimiga.nColunas / 2, modelo_inimiga.nLinhas * 0.1)
-
     Personagens[i].Posicao = Ponto(-2.5, 0)
     Personagens[i].Escala = Ponto(1, 1)
     Personagens[i].Rotacao = ang
@@ -630,13 +666,15 @@ def CriaInstancias():
     Personagens[i].Pivot = centro_pivot_nave
     Personagens[i].Direcao = Ponto(0, 1)
     Personagens[i].Direcao.rotacionaZ(ang)
-    Personagens[i].Velocidade = 5
+    Personagens[i].Velocidade = 10
     Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
+    Personagens[i].tipo = 'Jogador'
 
     # Nave Inimiga
     for j in range(1, 9):
         i += 1
         ang = 90
+        Personagens[i].tipo = 'Inimigo'
         Personagens[i].Posicao = GeraPosicaoAleatoria()
         Personagens[i].Escala = Ponto(1, 1)
         Personagens[i].Rotacao = ang
