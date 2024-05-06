@@ -99,25 +99,16 @@ def init():
 
 def animate():
     global angulo, meteoros
-    angulo = angulo + 1
-
+    angulo += 1
 
     atualizar_meteoros()
-    atualizar_tiros()
-    
+    atualiza_tiros()  # Chama a função de atualização dos tiros
+    dispara_tiros_inimigos()
+
     glutPostRedisplay()
 
-def atualizar_tiros():
-    global tiros, LarguraDoUniverso
-    tiros_ativos = []
-    for tiro in tiros:
-        # Mover o tiro
-        tiro.posicao.x += tiro.direcao.x
-        tiro.posicao.y += tiro.direcao.y
-        # Manter tiro se dentro dos limites
-        if -LarguraDoUniverso < tiro.posicao.x < LarguraDoUniverso and -LarguraDoUniverso < tiro.posicao.y < LarguraDoUniverso:
-            tiros_ativos.append(tiro)
-    tiros = tiros_ativos
+
+
 
 def atualizar_meteoros():
     global meteoros, LarguraDoUniverso
@@ -168,6 +159,7 @@ def display():
 
     DesenhaPersonagens()
     AtualizaPersonagens(DiferencaDeTempo)
+    DesenhaTiros()
 
 
     glutSwapBuffers()
@@ -182,7 +174,7 @@ ESCAPE = b'\x1b'
 
 
 def keyboard(*args):
-    global imprimeEnvelope
+    global imprimeEnvelope, tiros, max_tiros, Personagens
     key = args[0]
     #print(key)
 
@@ -197,6 +189,15 @@ def keyboard(*args):
     if key == b'd':  # D - Rotaciona para direita
         Personagens[0].Rotacao -= 10
         Personagens[0].Direcao.rotacionaZ(-10)
+    if key == b' ':  # Espaço - Dispara um tiro
+        for tiro in Personagens[0]:
+            if tiro.tipo == 'Tiro' and not tiro.ativo:
+                tiro.ativo = True
+                tiro.Posicao = Ponto(Personagens[0].Posicao.x, Personagens[0].Posicao.y)
+                tiro.Direcao = Ponto(Personagens[0].Direcao.x, Personagens[0].Direcao.y)
+                tiro.Velocidade = 20  # Certifique-se de definir a velocidade apropriadamente
+                print("Tiro ativado em: ", tiro.Posicao.x, tiro.Posicao.y)
+                break
     
     # Para alternar o estado de visualização do envelope de colisão
     if key == b'e':
@@ -207,15 +208,12 @@ def keyboard(*args):
         os._exit(0)
 
 
-
     glutPostRedisplay()
 
 
 # **********************************************************************
 #  arrow_keys ( a_keys: int, x: int, y: int )
 # **********************************************************************
-
-
 def arrow_keys(a_keys: int, x: int, y: int):
     if a_keys == GLUT_KEY_UP:         # Se pressionar UP
         Personagens[0].Posicao += Personagens[0].Direcao * 10
@@ -235,7 +233,6 @@ def arrow_keys(a_keys: int, x: int, y: int):
 # ***********************************************************************************
 #
 # ***********************************************************************************
-
 def mouse(button: int, state: int, x: int, y: int):
     global PontoClicado
     if (state != GLUT_DOWN):
@@ -258,8 +255,6 @@ def mouse(button: int, state: int, x: int, y: int):
     glutPostRedisplay()
 
 # ***********************************************************************************
-
-
 def mouseMove(x: int, y: int):
     # glutPostRedisplay()
     return
@@ -541,7 +536,8 @@ def CarregaModelos():
     Modelos[9].leModelo("Vida.txt")
     Modelos.append(ModeloMatricial())
     Modelos[10].leModelo("VidaPos.txt")
-
+    Modelos.append(ModeloMatricial())
+    Modelos[11].leModelo("Tiro.txt")
 
 
     print("Modelo 0")
@@ -566,6 +562,8 @@ def CarregaModelos():
     Modelos[9].Imprime()
     print("Modelo 10")
     Modelos[10].Imprime()
+    print("Modelo 11")
+    Modelos[11].Imprime()
 
 def DesenhaCelula():
     glBegin(GL_QUADS)
@@ -677,7 +675,57 @@ def CriaInstancias():
         Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
         x -= 18  # Muda a posição X para o próximo coração
 
+    # Tiros
+    for k in range(max_tiros):
+        i += 1
+        Personagens[i] = Instancia()
+        Personagens[i].ativo = False
+        Personagens[i].Posicao = Ponto(0, 0)  # Posição inicial padrão
+        Personagens[i].Direcao = Ponto(0, 1)  # Direção inicial padrão
+        Personagens[i].Escala = Ponto(1, 1)
+        Personagens[i].Rotacao = 0
+        Personagens[i].IdDoModelo = 11  # ID do modelo de tiro
+        Personagens[i].Modelo = DesenhaPersonagemMatricial
+        Personagens[i].Pivot = Ponto(0, 0)
+        Personagens[i].tipo = 'Tiro'
+        Personagens[i].Velocidade = 10  # Velocidade de tiro
+
     nInstancias = i + 1
+
+def atualiza_tiros():
+    global Personagens, LarguraDoUniverso
+    for tiro in Personagens:
+        if tiro.tipo == 'Tiro' and tiro.ativo:
+            tiro.Posicao += tiro.Direcao * tiro.Velocidade
+            if abs(tiro.Posicao.x) > LarguraDoUniverso or abs(tiro.Posicao.y) > LarguraDoUniverso:
+                tiro.ativo = False  # Desativa o tiro quando sai da tela
+
+
+def dispara_tiros_inimigos():
+    for inimigo in Personagens:
+        if inimigo.tipo == 'Inimigo' and random.random() < 0.05:  # 5% de chance por frame
+            for tiro in Personagens:
+                if tiro.tipo == 'Tiro' and not tiro.ativo:
+                    tiro.ativo = True
+                    tiro.Posicao = Ponto(inimigo.Posicao.x, inimigo.Posicao.y)
+                    tiro.Direcao = Ponto(inimigo.Direcao.x, inimigo.Direcao.y)
+                    break
+
+def DesenhaTiros():
+    for tiro in Personagens:
+        if tiro.tipo == 'Tiro' and tiro.ativo:
+            glPushMatrix()
+            glTranslate(tiro.Posicao.x, tiro.Posicao.y, 0)
+            tiro.Modelo()
+            glPopMatrix()
+
+
+def atualiza_tiros():
+    for tiro in Personagens:
+        if tiro.tipo == 'Tiro' and tiro.ativo:
+            tiro.Posicao += tiro.Direcao * tiro.Velocidade
+            if abs(tiro.Posicao.x) > LarguraDoUniverso or abs(tiro.Posicao.y) > LarguraDoUniverso:
+                tiro.ativo = False  # Desativa o tiro quando sai da tela
 
 
 # ***********************************************************************************
