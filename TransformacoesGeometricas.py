@@ -189,17 +189,15 @@ def keyboard(*args):
     # Configurações para as teclas WASD
     if key == b'w':  # W - Move para frente
         Personagens[0].Posicao += Personagens[0].Direcao * 10
-    elif key == b's':  # S - Move para trás
+    if key == b's':  # S - Move para trás
         Personagens[0].Posicao -= Personagens[0].Direcao * 10
-    elif key == b'a':  # A - Rotaciona para esquerda
+    if key == b'a':  # A - Rotaciona para esquerda
         Personagens[0].Rotacao += 10
         Personagens[0].Direcao.rotacionaZ(+10)
-    elif key == b'd':  # D - Rotaciona para direita
+    if key == b'd':  # D - Rotaciona para direita
         Personagens[0].Rotacao -= 10
         Personagens[0].Direcao.rotacionaZ(-10)
     
-    elif key == b' ':  # Atirar
-        disparar_tiro(0)
     # Para alternar o estado de visualização do envelope de colisão
     if key == b'e':
         imprimeEnvelope = not imprimeEnvelope
@@ -212,16 +210,6 @@ def keyboard(*args):
 
     glutPostRedisplay()
 
-def disparar_tiro(index):
-    global tiros
-    inst = Personagens[index]
-    if hasattr(inst, 'posicao') and hasattr(inst, 'direcao'):
-        pos_tiro = Ponto(inst.posicao.x, inst.posicao.y)  # Posição inicial do tiro
-        direcao_tiro = Ponto(inst.direcao.x, inst.direcao.y)  # Direção do tiro
-        tiro = Tiro(posicao=pos_tiro, direcao=direcao_tiro)
-        tiros.append(tiro)
-    else:
-        print(f"Erro: A instância no índice {index} não possui os atributos necessários para disparar.")
 
 # **********************************************************************
 #  arrow_keys ( a_keys: int, x: int, y: int )
@@ -247,7 +235,6 @@ def arrow_keys(a_keys: int, x: int, y: int):
 # ***********************************************************************************
 #
 # ***********************************************************************************
-
 
 def mouse(button: int, state: int, x: int, y: int):
     global PontoClicado
@@ -290,21 +277,6 @@ def clear():
         _ = system('clear')
         print("*******************")
         print("PWD: ", os.getcwd())
-
-
-def disparar_tiro(index):
-    global tiros
-    try:
-        inst = Personagens[index]
-        if hasattr(inst, 'Posicao'):
-            pos_tiro = Ponto(inst.Posicao.x, inst.Posicao.y + 1)  # Posição acima da nave
-            direcao_tiro = Ponto(inst.Direcao.x, inst.Direcao.y)
-            novo_tiro = Tiro(pos_tiro, direcao_tiro)
-            tiros.append(novo_tiro)
-        else:
-            print(f"Erro: A instância no índice {index} não possui o atributo 'posicao'.")
-    except IndexError:
-        print(f"Erro: Não existe instância no índice {index}.")
 
 
 def CriaMeteoros():
@@ -395,6 +367,7 @@ def TestaColisao(P1, P2) -> bool:
     return False
 
 
+
 # ***********************************************************************************
 def AtualizaEnvelope(i):
     global Personagens
@@ -416,19 +389,19 @@ def AtualizaEnvelope(i):
 
     # Desenha o envelope
     # !!!!!!!!!!!!!!!!!!!!!!!!!!! Comentei aqui para que o envelope(hitbox) não seja desenhado !!!!!!!!!!!!!!!!!!!!!!!!!!!
-    SetColor(Red)
-    glBegin(GL_LINE_LOOP)
-    glVertex2f(A.x, A.y)
-    glVertex2f(B.x, B.y)
-    glVertex2f(C.x, C.y)
-    glVertex2f(D.x, D.y)
-    glEnd()
-    if (imprimeEnvelope):
-        A.imprime("A:");
-        B.imprime("B:");
-        C.imprime("C:");
-        D.imprime("D:");
-        print("");
+    # SetColor(Red)
+    # glBegin(GL_LINE_LOOP)
+    # glVertex2f(A.x, A.y)
+    # glVertex2f(B.x, B.y)
+    # glVertex2f(C.x, C.y)
+    # glVertex2f(D.x, D.y)
+    # glEnd()
+    # if (imprimeEnvelope):
+    #     A.imprime("A:");
+    #     B.imprime("B:");
+    #     C.imprime("C:");
+    #     D.imprime("D:");
+    #     print("");
 
     Personagens[i].Envelope[0] = A
     Personagens[i].Envelope[1] = B
@@ -673,7 +646,7 @@ def CriaInstancias():
     # Nave Inimiga
     for j in range(1, 9):
         i += 1
-        ang = 90
+        ang = random.randint(-180, 180)
         Personagens[i].tipo = 'Inimigo'
         Personagens[i].Posicao = GeraPosicaoAleatoria()
         Personagens[i].Escala = Ponto(1, 1)
@@ -705,7 +678,6 @@ def CriaInstancias():
         x -= 18  # Muda a posição X para o próximo coração
 
     nInstancias = i + 1
-
 
 
 # ***********************************************************************************
