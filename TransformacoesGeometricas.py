@@ -677,39 +677,42 @@ def CriaInstancias():
 
     # Tiros
     for k in range(max_tiros):
-        i += 1
-        Personagens[i] = Instancia()
-        Personagens[i].ativo = False
-        Personagens[i].Posicao = Ponto(0, 0)  # Posição inicial padrão
-        Personagens[i].Direcao = Ponto(0, 1)  # Direção inicial padrão
-        Personagens[i].Escala = Ponto(1, 1)
-        Personagens[i].Rotacao = 0
-        Personagens[i].IdDoModelo = 11  # ID do modelo de tiro
-        Personagens[i].Modelo = DesenhaPersonagemMatricial
-        Personagens[i].Pivot = Ponto(0, 0)
-        Personagens[i].tipo = 'Tiro'
-        Personagens[i].Velocidade = 10  # Velocidade de tiro
+        nova_instancia = Instancia()
+        nova_instancia.ativo = False  # Inicialmente inativo
+        nova_instancia.Posicao = Ponto(0, 0)  # Posição inicial genérica
+        nova_instancia.Direcao = Ponto(0, 1)  # Direção padrão para cima
+        nova_instancia.Escala = Ponto(1, 1)  # Escala padrão
+        nova_instancia.Rotacao = 0  # Sem rotação inicial
+        nova_instancia.IdDoModelo = 11  # Assumindo que o modelo 11 é para os tiros
+        nova_instancia.Modelo = DesenhaPersonagemMatricial  # A função de desenho apropriada
+        nova_instancia.tipo = 'Tiro'
+        nova_instancia.Velocidade = 10  # Velocidade do tiro
+        Personagens.append(nova_instancia)
 
-    nInstancias = i + 1
+    nInstancias = len(Personagens)
 
 def atualiza_tiros():
     global Personagens, LarguraDoUniverso
-    for tiro in Personagens:
-        if tiro.tipo == 'Tiro' and tiro.ativo:
-            tiro.Posicao += tiro.Direcao * tiro.Velocidade
-            if abs(tiro.Posicao.x) > LarguraDoUniverso or abs(tiro.Posicao.y) > LarguraDoUniverso:
-                tiro.ativo = False  # Desativa o tiro quando sai da tela
+    for tiro in [p for p in Personagens if p.tipo == 'Tiro' and p.ativo]:
+        tiro.Posicao += tiro.Direcao * tiro.Velocidade
+        if abs(tiro.Posicao.x) > LarguraDoUniverso or abs(tiro.Posicao.y) > LarguraDoUniverso:
+            tiro.ativo = False  # Desativa o tiro quando ele sai da tela
+            print(f"Tiro desativado em {tiro.Posicao.x}, {tiro.Posicao.y}")  # Debug
+
 
 
 def dispara_tiros_inimigos():
-    for inimigo in Personagens:
-        if inimigo.tipo == 'Inimigo' and random.random() < 0.05:  # 5% de chance por frame
-            for tiro in Personagens:
-                if tiro.tipo == 'Tiro' and not tiro.ativo:
-                    tiro.ativo = True
-                    tiro.Posicao = Ponto(inimigo.Posicao.x, inimigo.Posicao.y)
-                    tiro.Direcao = Ponto(inimigo.Direcao.x, inimigo.Direcao.y)
-                    break
+    global Personagens
+    for inimigo in [p for p in Personagens if p.tipo == 'Inimigo']:
+        if random.random() < 0.05:  # Chance de 5% por frame de disparar um tiro
+            tiro_disponivel = next((t for t in Personagens if t.tipo == 'Tiro' and not t.ativo), None)
+            if tiro_disponivel:
+                tiro_disponivel.ativo = True
+                tiro_disponivel.Posicao = Ponto(inimigo.Posicao.x, inimigo.Posicao.y)
+                tiro_disponivel.Direcao = Ponto(inimigo.Direcao.x, inimigo.Direcao.y)
+                print(f"Tiro disparado por inimigo em {inimigo.Posicao.x}, {inimigo.Posicao.y}")  # Debug
+
+
 
 def DesenhaTiros():
     for tiro in Personagens:
@@ -721,11 +724,16 @@ def DesenhaTiros():
 
 
 def atualiza_tiros():
+    global Personagens, LarguraDoUniverso
     for tiro in Personagens:
         if tiro.tipo == 'Tiro' and tiro.ativo:
             tiro.Posicao += tiro.Direcao * tiro.Velocidade
+            # Debugging: Log the position to see if updates are occurring
+            print(f"Updating shot at {tiro.Posicao.x}, {tiro.Posicao.y}")
             if abs(tiro.Posicao.x) > LarguraDoUniverso or abs(tiro.Posicao.y) > LarguraDoUniverso:
-                tiro.ativo = False  # Desativa o tiro quando sai da tela
+                tiro.ativo = False  # Deactivates the shot when it leaves the screen
+                print("Shot deactivated due to leaving screen area")  # Debugging
+
 
 
 # ***********************************************************************************
