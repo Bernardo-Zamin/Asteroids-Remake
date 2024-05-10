@@ -70,6 +70,10 @@ vidas = 3
 tiros = []
 max_tiros = 10
 tiros_ativos = []
+tiros_disparados = 0
+tempo_de_recarga = 1.5
+recarregando = False
+
 
 # tempo_para_mudar_direcao = 2.0  # tempo em segundos para mudar de direção
 # tempo_desde_ultima_mudanca = 0.0
@@ -190,14 +194,8 @@ def keyboard(*args):
         Personagens[0].Rotacao -= 10
         Personagens[0].Direcao.rotacionaZ(-10)
     if key == b' ':  # Espaço - Dispara um tiro
-        for tiro in Personagens[0]:
-            if tiro.tipo == 'Tiro' and not tiro.ativo:
-                tiro.ativo = True
-                tiro.Posicao = Ponto(Personagens[0].Posicao.x, Personagens[0].Posicao.y)
-                tiro.Direcao = Ponto(Personagens[0].Direcao.x, Personagens[0].Direcao.y)
-                tiro.Velocidade = 20  # Certifique-se de definir a velocidade apropriadamente
-                print("Tiro ativado em: ", tiro.Posicao.x, tiro.Posicao.y)
-                break
+        dispara_tiro_jogador()
+        atualiza_tiros()
     
     # Para alternar o estado de visualização do envelope de colisão
     if key == b'e':
@@ -416,38 +414,29 @@ def GeraPosicaoAleatoria():
 
 # ***********************************************************************************
 def AtualizaJogo():
-    global imprimeEnvelope, nInstancias, Personagens
-    #  Esta funcao deverá atualizar todos os elementos do jogo
-    #  em funcao das novas posicoes dos personagens
-    #  Entre outras coisas, deve-se:
-
-    #   - calcular colisões
-    #  Para calcular as colisoes eh preciso fazer o calculo do envelopes de
-    #  todos os personagens
-
+    global Personagens, nInstancias
     for i in range(0, nInstancias):
         AtualizaEnvelope(i)
         if (imprimeEnvelope):  # pressione E para alterar esta flag
             print("Envelope ", i)
             Personagens[i].ImprimeEnvelope("", "")
-    imprimeEnvelope = False
-
 
     for i in range(1, nInstancias):
-        if TestaColisao(0, i):
-            # neste exemplo, a posicao do tiro é gerada aleatoriamente apos a colisao
-            Personagens[i] = copy.deepcopy(Personagens[i+AREA_DE_BACKUP])
-            Personagens[i].Posicao = GeraPosicaoAleatoria()
-            Personagens[i].Posicao.imprime("Nova posicao:")
-            ang = random.randint(0, 360)
-            Personagens[i].Rotacao = ang
-            Personagens[i].Direcao = Ponto(0, 1)
-            Personagens[i].Direcao.rotacionaZ(ang)
-            print("Nova Orientacao: ", ang)
-
+        if i + AREA_DE_BACKUP < len(Personagens):  # Certifique-se de que o índice está dentro do intervalo
+            if TestaColisao(0, i):
+                Personagens[i] = copy.deepcopy(Personagens[i+AREA_DE_BACKUP])
+                Personagens[i].Posicao = GeraPosicaoAleatoria()
+                Personagens[i].Posicao.imprime("Nova posicao:")
+                ang = random.randint(0, 360)
+                Personagens[i].Rotacao = ang
+                Personagens[i].Direcao = Ponto(0, 1)
+                Personagens[i].Direcao.rotacionaZ(ang)
+                print("Nova Orientacao: ", ang)
+            else:
+                pass
         else:
-            pass
-            # print ("SEM Colisao")
+            print("Índice fora do alcance:", i + AREA_DE_BACKUP)
+
 
 
 def AtualizaPersonagens(tempoDecorrido):
@@ -538,6 +527,8 @@ def CarregaModelos():
     Modelos[10].leModelo("VidaPos.txt")
     Modelos.append(ModeloMatricial())
     Modelos[11].leModelo("Tiro.txt")
+    Modelos.append(ModeloMatricial())
+    Modelos[12].leModelo("TiroInimigo.txt")
 
 
     print("Modelo 0")
@@ -564,6 +555,8 @@ def CarregaModelos():
     Modelos[10].Imprime()
     print("Modelo 11")
     Modelos[11].Imprime()
+    print("Modelo 12")
+    Modelos[12].Imprime()
 
 def DesenhaCelula():
     glBegin(GL_QUADS)
@@ -675,42 +668,87 @@ def CriaInstancias():
         Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
         x -= 18  # Muda a posição X para o próximo coração
 
-    # Tiros
+    # Tiros do Jogador
     for k in range(max_tiros):
         nova_instancia = Instancia()
-        nova_instancia.ativo = False  # Inicialmente inativo
-        nova_instancia.Posicao = Ponto(0, 0)  # Posição inicial genérica
-        nova_instancia.Direcao = Ponto(0, 1)  # Direção padrão para cima
-        nova_instancia.Escala = Ponto(1, 1)  # Escala padrão
-        nova_instancia.Rotacao = 0  # Sem rotação inicial
-        nova_instancia.IdDoModelo = 11  # Assumindo que o modelo 11 é para os tiros
-        nova_instancia.Modelo = DesenhaPersonagemMatricial  # A função de desenho apropriada
-        nova_instancia.tipo = 'Tiro'
-        nova_instancia.Velocidade = 10  # Velocidade do tiro
+        nova_instancia.ativo = False
+        nova_instancia.Posicao = Ponto(0, 0)
+        nova_instancia.Direcao = Ponto(0, 1)
+        nova_instancia.Escala = Ponto(1, 1)
+        nova_instancia.Rotacao = 0
+        nova_instancia.IdDoModelo = 11  # Modelo do tiro do jogador
+        nova_instancia.Modelo = DesenhaPersonagemMatricial
+        nova_instancia.tipo = 'TiroJogador'
+        nova_instancia.Velocidade = 8
         Personagens.append(nova_instancia)
+
+    # Tiros Inimigos
+    for k in range(max_tiros):
+        tiro_inimigo_inst = Instancia()
+        tiro_inimigo_inst.ativo = False
+        tiro_inimigo_inst.Posicao = Ponto(0, 0)
+        tiro_inimigo_inst.Direcao = Ponto(0, -1)  # Direção para baixo
+        tiro_inimigo_inst.Escala = Ponto(1, 1)
+        tiro_inimigo_inst.Rotacao = 0
+        tiro_inimigo_inst.IdDoModelo = 12  # Modelo do tiro inimigo
+        tiro_inimigo_inst.Modelo = DesenhaPersonagemMatricial
+        tiro_inimigo_inst.tipo = 'TiroInimigo'
+        tiro_inimigo_inst.Velocidade = 5
+        Personagens.append(tiro_inimigo_inst)
 
     nInstancias = len(Personagens)
 
+
+
 def atualiza_tiros():
     global Personagens, LarguraDoUniverso
-    for tiro in [p for p in Personagens if p.tipo == 'Tiro' and p.ativo]:
+    for tiro in [p for p in Personagens if p.tipo.startswith('Tiro') and p.ativo]:
         tiro.Posicao += tiro.Direcao * tiro.Velocidade
+        # Verifica se o tiro saiu dos limites do universo
         if abs(tiro.Posicao.x) > LarguraDoUniverso or abs(tiro.Posicao.y) > LarguraDoUniverso:
-            tiro.ativo = False  # Desativa o tiro quando ele sai da tela
-            print(f"Tiro desativado em {tiro.Posicao.x}, {tiro.Posicao.y}")  # Debug
+            tiro.ativo = False
+            print(f"Tiro desativado em {tiro.Posicao.x}, {tiro.Posicao.y}")
+
+def dispara_tiro_jogador():
+    global Personagens, tiros_disparados, recarregando, tempo_de_recarga
+    if recarregando:
+        tempo_atual = time.time()
+        if tempo_atual - tempo_de_recarga >= 2:
+            recarregando = False
+            tiros_disparados = 0
+        else:
+            return
+    jogador = next((p for p in Personagens if p.tipo == 'Jogador'), None)
+    if jogador and tiros_disparados < 10:
+        tiro_disponivel = next((t for t in Personagens if t.tipo == 'TiroJogador' and not t.ativo), None)
+        if tiro_disponivel:
+            tiro_disponivel.ativo = True
+            # Configura manualmente a posição do tiro com base na geometria visual da nave
+            offset_x, offset_y = 0, 2  # Ajuste esses valores conforme a posição visual da ponta da arma
+            tiro_disponivel.Posicao = Ponto(jogador.Posicao.x + jogador.Direcao.x * offset_x, 
+                                             jogador.Posicao.y + jogador.Direcao.y * offset_y)
+            tiro_disponivel.Direcao = Ponto(jogador.Direcao.x, jogador.Direcao.y)
+            tiro_disponivel.Velocidade = 8
+            tiros_disparados += 1
+            if tiros_disparados == 10:
+                recarregando = True
+                tempo_de_recarga = time.time()
+
+
 
 
 
 def dispara_tiros_inimigos():
     global Personagens
     for inimigo in [p for p in Personagens if p.tipo == 'Inimigo']:
-        if random.random() < 0.05:  # Chance de 5% por frame de disparar um tiro
-            tiro_disponivel = next((t for t in Personagens if t.tipo == 'Tiro' and not t.ativo), None)
+        if random.random() < 0.05:
+            tiro_disponivel = next((t for t in Personagens if t.tipo == 'TiroInimigo' and not t.ativo), None)
             if tiro_disponivel:
                 tiro_disponivel.ativo = True
                 tiro_disponivel.Posicao = Ponto(inimigo.Posicao.x, inimigo.Posicao.y)
                 tiro_disponivel.Direcao = Ponto(inimigo.Direcao.x, inimigo.Direcao.y)
-                print(f"Tiro disparado por inimigo em {inimigo.Posicao.x}, {inimigo.Posicao.y}")  # Debug
+                tiro_disponivel.Velocidade = 5
+                print(f"Tiro disparado por inimigo em {inimigo.Posicao.x}, {inimigo.Posicao.y}")
 
 
 
@@ -723,26 +761,13 @@ def DesenhaTiros():
             glPopMatrix()
 
 
-def atualiza_tiros():
-    global Personagens, LarguraDoUniverso
-    for tiro in Personagens:
-        if tiro.tipo == 'Tiro' and tiro.ativo:
-            tiro.Posicao += tiro.Direcao * tiro.Velocidade
-            # Debugging: Log the position to see if updates are occurring
-            print(f"Updating shot at {tiro.Posicao.x}, {tiro.Posicao.y}")
-            if abs(tiro.Posicao.x) > LarguraDoUniverso or abs(tiro.Posicao.y) > LarguraDoUniverso:
-                tiro.ativo = False  # Deactivates the shot when it leaves the screen
-                print("Shot deactivated due to leaving screen area")  # Debugging
-
-
-
 # ***********************************************************************************
 # Programa Principal
 # ***********************************************************************************
 glutInit(sys.argv)
 glutInitDisplayMode(GLUT_RGBA)
 # Define o tamanho inicial da janela grafica do programa
-glutInitWindowSize(800, 800)
+glutInitWindowSize(900, 900)
 glutInitWindowPosition(100, 100)
 wind = glutCreateWindow("Exemplo de Criacao de Instancias")
 glutDisplayFunc(display)
