@@ -24,6 +24,7 @@ class Instancia:
         self.t = 0.0
         self.tempo_para_proximo_tiro = random.randint(1, 5)
         self.tipo = ''
+        self.ativo = True
 
         self.IdDoModelo = 0;
         self.Pivot = Ponto (0,0,0) 

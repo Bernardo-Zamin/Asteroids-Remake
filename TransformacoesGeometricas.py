@@ -108,9 +108,9 @@ def animate():
     atualizar_meteoros()
     atualiza_tiros()  # Chama a função de atualização dos tiros
     dispara_tiros_inimigos()
+    TestaColisaoTirosInimigos()  # Verifica colisões entre tiros do jogador e naves inimigas
 
     glutPostRedisplay()
-
 
 
 
@@ -331,6 +331,43 @@ def DesenhaEixos():
 
 # ***********************************************************************************
 
+# Função para detectar colisão entre tiro e personagem
+def ColisaoTiroPersonagem(tiro, personagem):
+    # Supondo uma simples detecção de colisão por bounding box
+    tiro_size = 1  # Ajuste o tamanho conforme necessário
+    personagem_size = 5  # Ajuste o tamanho conforme necessário
+
+    tiro_min_x = tiro.Posicao.x - tiro_size / 2
+    tiro_max_x = tiro.Posicao.x + tiro_size / 2
+    tiro_min_y = tiro.Posicao.y - tiro_size / 2
+    tiro_max_y = tiro.Posicao.y + tiro_size / 2
+
+    personagem_min_x = personagem.Posicao.x - personagem_size / 2
+    personagem_max_x = personagem.Posicao.x + personagem_size / 2
+    personagem_min_y = personagem.Posicao.y - personagem_size / 2
+    personagem_max_y = personagem.Posicao.y + personagem_size / 2
+
+    # Verificar colisão
+    if (tiro_min_x < personagem_max_x and
+        tiro_max_x > personagem_min_x and
+        tiro_min_y < personagem_max_y and
+        tiro_max_y > personagem_min_y):
+        return True
+
+    return False
+
+# Função para testar colisões entre tiros do jogador e naves inimigas
+def TestaColisaoTirosInimigos():
+    global Personagens
+
+    # Loop através de todos os tiros do jogador
+    for tiro in [p for p in Personagens if p.tipo == 'TiroJogador' and p.ativo]:
+        for inimigo in [p for p in Personagens if p.tipo == 'Inimigo' and p.ativo]:
+            if ColisaoTiroPersonagem(tiro, inimigo):
+                tiro.ativo = False  # Desativar o tiro
+                inimigo.ativo = False  # "Matar" o inimigo
+                print(f"Inimigo {inimigo.IdDoModelo} destruído por tiro em {tiro.Posicao.x}, {tiro.Posicao.y}")
+
 
 def TestaColisao(P1, P2) -> bool:
     global Personagens
@@ -495,8 +532,10 @@ def DesenhaPersonagens():
     global PersonagemAtual, nInstancias
 
     for i in range(0, nInstancias):
-        PersonagemAtual = i
-        Personagens[i].Desenha()
+        if Personagens[i].ativo:  # Desenha apenas personagens ativos
+            PersonagemAtual = i
+            Personagens[i].Desenha()
+
 
 
 # ***********************************************************************************
