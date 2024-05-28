@@ -26,6 +26,7 @@ class Instancia:
         self.tipo = ''
         self.ativo = True
 
+
         self.IdDoModelo = 0;
         self.Pivot = Ponto (0,0,0) 
         self.Velocidade:float = 0.0

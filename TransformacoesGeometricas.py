@@ -65,7 +65,7 @@ TempoInicial = time.time()
 TempoTotal = time.time()
 TempoAnterior = time.time()
 
-vidas = 3 
+vidas = 3
 
 tiros = []
 max_tiros = 10
@@ -73,6 +73,16 @@ tiros_ativos = []
 tiros_disparados = 0
 tempo_de_recarga = 1.5
 recarregando = False
+
+pontos = 0
+
+# Estados do jogo
+GAME_STATE_PLAYING = 1
+GAME_STATE_GAME_OVER = 2
+
+# Estado atual do jogo
+game_state = GAME_STATE_PLAYING
+
 
 
 # tempo_para_mudar_direcao = 2.0  # tempo em segundos para mudar de direção
@@ -107,11 +117,14 @@ def animate():
 
     atualizar_meteoros()
     atualiza_tiros()  # Chama a função de atualização dos tiros
-    dispara_tiros_inimigos()
-    TestaColisaoTirosInimigos()  # Verifica colisões entre tiros do jogador e naves inimigas
+    rand = random.randint(0, 100)
+    if rand <= 15:
+        dispara_tiros_inimigos()
+
+
+    
 
     glutPostRedisplay()
-
 
 
 def atualizar_meteoros():
@@ -121,7 +134,6 @@ def atualizar_meteoros():
         meteoro.posicao.y += meteoro.velocidade * meteoro.direcao.y
         if abs(meteoro.posicao.x) > LarguraDoUniverso or abs(meteoro.posicao.y) > LarguraDoUniverso:
             meteoro.posicao = GeraPosicaoAleatoria()
-
 
 
 # ***********************************************************************************
@@ -142,17 +154,41 @@ def reshape(w, h):
 # ***********************************************************************************
 
 
-def display():
+def DesenhaTexto(string, x, y, tamanho=GLUT_BITMAP_HELVETICA_18):
+    glRasterPos2f(x, y)
+    for c in string:
+        glutBitmapCharacter(tamanho, ord(c))
 
-    global TempoInicial, TempoTotal, TempoAnterior
+def display_game_over():
+    global pontos
+
+    # Limpa a tela com a cor de fundo
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+
+    glColor3f(1, 1, 1)  # Cor do texto
+    DesenhaTexto(f"Game Over", -10, 20, GLUT_BITMAP_TIMES_ROMAN_24)
+    DesenhaTexto(f"Pontos: {pontos}", -10, 0, GLUT_BITMAP_HELVETICA_18)
+    DesenhaTexto(f"Pressione 'r' para jogar novamente", -10, -20, GLUT_BITMAP_HELVETICA_18)
+    DesenhaTexto(f"Pressione 'ESC' para sair", -10, -40, GLUT_BITMAP_HELVETICA_18)
+
+    glutSwapBuffers()
+
+
+def display():
+    global TempoInicial, TempoTotal, TempoAnterior, pontos, game_state
+
+    if game_state == GAME_STATE_GAME_OVER:
+        display_game_over()
+        return
 
     TempoAtual = time.time()
-
     TempoTotal = TempoAtual - TempoInicial
-
     DiferencaDeTempo = TempoAtual - TempoAnterior
 
-    # Limpa a tela coma cor de fundo
+    # Limpa a tela com a cor de fundo
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     glMatrixMode(GL_MODELVIEW)
@@ -165,6 +201,8 @@ def display():
     AtualizaPersonagens(DiferencaDeTempo)
     DesenhaTiros()
 
+    glColor3f(1, 1, 1)  # Cor do texto
+    DesenhaTexto(f"Pontos: {pontos}", -10, 140)  # Ajuste as coordenadas conforme necessário
 
     glutSwapBuffers()
     TempoAnterior = TempoAtual
@@ -178,35 +216,40 @@ ESCAPE = b'\x1b'
 
 
 def keyboard(*args):
-    global imprimeEnvelope, tiros, max_tiros, Personagens
+    global imprimeEnvelope, tiros, max_tiros, Personagens, game_state
     key = args[0]
-    #print(key)
 
-    # Configurações para as teclas WASD
-    if key == b'w':  # W - Move para frente
-        Personagens[0].Posicao += Personagens[0].Direcao * 10
-    if key == b's':  # S - Move para trás
-        Personagens[0].Posicao -= Personagens[0].Direcao * 10
-    if key == b'a':  # A - Rotaciona para esquerda
-        Personagens[0].Rotacao += 10
-        Personagens[0].Direcao.rotacionaZ(+10)
-    if key == b'd':  # D - Rotaciona para direita
-        Personagens[0].Rotacao -= 10
-        Personagens[0].Direcao.rotacionaZ(-10)
-    if key == b' ':  # Espaço - Dispara um tiro
-        dispara_tiro_jogador()
-        atualiza_tiros()
-    
-    # Para alternar o estado de visualização do envelope de colisão
-    if key == b'e':
-        imprimeEnvelope = not imprimeEnvelope
+    if game_state == GAME_STATE_GAME_OVER:
+        if key == b'r':  # 'r' para reiniciar
+            reiniciar_jogo()
+        elif key == b'q' or key == ESCAPE:  # 'q' para sair
+            os._exit(0)
+    else:
+        # Comandos do jogo normal
+        if key == b'w':  # W - Move para frente
+            Personagens[0].Posicao += Personagens[0].Direcao * 10
+        if key == b's':  # S - Move para trás
+            Personagens[0].Posicao -= Personagens[0].Direcao * 10
+        if key == b'a':  # A - Rotaciona para esquerda
+            Personagens[0].Rotacao += 10
+            Personagens[0].Direcao.rotacionaZ(+10)
+        if key == b'd':  # D - Rotaciona para direita
+            Personagens[0].Rotacao -= 10
+            Personagens[0].Direcao.rotacionaZ(-10)
+        if key == b' ':  # Espaço - Dispara um tiro
+            dispara_tiro_jogador()
+            atualiza_tiros()
 
-    # Comandos adicionais, como antes
-    if key == b'q' or key == ESCAPE:
-        os._exit(0)
+        if key == b'e':
+            imprimeEnvelope = not imprimeEnvelope
+
+        if key == b'q' or key == ESCAPE:
+            os._exit(0)
+
+        glutPostRedisplay()
 
 
-    glutPostRedisplay()
+
 
 
 # **********************************************************************
@@ -231,6 +274,8 @@ def arrow_keys(a_keys: int, x: int, y: int):
 # ***********************************************************************************
 #
 # ***********************************************************************************
+
+
 def mouse(button: int, state: int, x: int, y: int):
     global PontoClicado
     if (state != GLUT_DOWN):
@@ -253,6 +298,8 @@ def mouse(button: int, state: int, x: int, y: int):
     glutPostRedisplay()
 
 # ***********************************************************************************
+
+
 def mouseMove(x: int, y: int):
     # glutPostRedisplay()
     return
@@ -271,22 +318,53 @@ def clear():
         print("*******************")
         print("PWD: ", os.getcwd())
 
+def reiniciar_jogo():
+    global game_state, pontos, Personagens, TempoInicial, meteoros, vidas, tiros_disparados, recarregando, nInstancias
+
+    # Reiniciar estado do jogo
+    game_state = GAME_STATE_PLAYING
+    pontos = 0
+    vidas = 3
+    tiros_disparados = 0
+    recarregando = False
+
+    # Limpar listas de personagens e meteoros
+    Personagens = [Instancia() for x in range(500)]
+    meteoros = []
+
+    # Recriar instâncias e meteoros
+    CriaInstancias()
+    CriaMeteoros()
+
+    # Reiniciar o tempo
+    TempoInicial = time.time()
+
+    glutDisplayFunc(display)
+    glutPostRedisplay()
+
+
+
 
 def CriaMeteoros():
     for i in range(170):  # Cria 170 meteoros
         posicao = GeraPosicaoAleatoria()
-        tamanho = random.uniform(0.1, 0.5)  # Tamanho aleatório para cada meteoro
-        velocidade = random.uniform(0.01, 0.015)  # Velocidade muito pequena para movimento sutil
-        direcao = Ponto(random.uniform(-1, 1), random.uniform(-1, 1))  # Direção aleatória
+        # Tamanho aleatório para cada meteoro
+        tamanho = random.uniform(0.1, 0.5)
+        # Velocidade muito pequena para movimento sutil
+        velocidade = random.uniform(0.01, 0.015)
+        direcao = Ponto(random.uniform(-1, 1),
+                        random.uniform(-1, 1))  # Direção aleatória
         meteoros.append(Meteoro(posicao, tamanho, velocidade, direcao))
 
 
 def DesenhaMeteoros():
     for meteoro in meteoros:
         glPushMatrix()
-        glTranslate(meteoro.posicao.x, meteoro.posicao.y, 0)  # Posiciona o meteoro
+        # Posiciona o meteoro
+        glTranslate(meteoro.posicao.x, meteoro.posicao.y, 0)
         DesenhaMeteoro(meteoro.tamanho)  # Desenha o meteoro
         glPopMatrix()
+
 
 def DesenhaMeteoro(tamanho):
     glBegin(GL_QUADS)
@@ -296,11 +374,12 @@ def DesenhaMeteoro(tamanho):
     glVertex2f(tamanho, -tamanho)
     glEnd()
 
+
 def DesenhaLinha(P1, P2):
     glBegin(GL_LINES)
     glVertex3f(P1.x, P1.y, P1.z)
     glVertex3f(P2.x, P2.y, P2.z)
-    glEnd() 
+    glEnd()
 
 # ****************************************************************
 
@@ -331,11 +410,10 @@ def DesenhaEixos():
 
 # ***********************************************************************************
 
-# Função para detectar colisão entre tiro e personagem
 def ColisaoTiroPersonagem(tiro, personagem):
     # Supondo uma simples detecção de colisão por bounding box
-    tiro_size = 1  # Ajuste o tamanho conforme necessário
-    personagem_size = 5  # Ajuste o tamanho conforme necessário
+    tiro_size = 1
+    personagem_size = 20  # Ajustado manualmente
 
     tiro_min_x = tiro.Posicao.x - tiro_size / 2
     tiro_max_x = tiro.Posicao.x + tiro_size / 2
@@ -356,87 +434,110 @@ def ColisaoTiroPersonagem(tiro, personagem):
 
     return False
 
-# Função para testar colisões entre tiros do jogador e naves inimigas
-def TestaColisaoTirosInimigos():
-    global Personagens
 
+# Função para testar colisões entre tiros do jogador e naves inimigas
+
+
+def TestaColisaoTirosInimigos():
+    global Personagens , pontos
     # Loop através de todos os tiros do jogador
     for tiro in [p for p in Personagens if p.tipo == 'TiroJogador' and p.ativo]:
         for inimigo in [p for p in Personagens if p.tipo == 'Inimigo' and p.ativo]:
             if ColisaoTiroPersonagem(tiro, inimigo):
                 tiro.ativo = False  # Desativar o tiro
                 inimigo.ativo = False  # "Matar" o inimigo
+                pontos += 10
                 print(f"Inimigo {inimigo.IdDoModelo} destruído por tiro em {tiro.Posicao.x}, {tiro.Posicao.y}")
+                GeraNovosInimigos()
+                
+def TestaColisaoTirosJogador():
+    global Personagens, vidas, game_state
+
+    for tiro in [p for p in Personagens if p.tipo == 'TiroInimigo' and p.ativo]:
+        for vida in [p for p in Personagens if p.tipo == 'Vida' and p.ativo]:
+            if Personagens[0].ativo and TestaColisao(tiro, Personagens[0]):
+                tiro.ativo = False
+                vidas -= 1
+                vida.ativo = False
+                if vidas <= 0:
+                    game_state = GAME_STATE_GAME_OVER
+                    glutDisplayFunc(display_game_over)
+                return
+
+
+
+
+                
 
 
 def TestaColisao(P1, P2) -> bool:
     global Personagens
-
     # cout << "\n-----\n" << endl;
     # Personagens[Objeto1].ImprimeEnvelope("Envelope 1: ", "\n");
     # Personagens[Objeto2].ImprimeEnvelope("\nEnvelope 2: ", "\n");
     # cout << endl;
-
     # Testa todas as arestas do envelope de
     # um objeto contra as arestas do outro
-    for i in range(4):
-        A = Personagens[P1].Envelope[i]
-        B = Personagens[P1].Envelope[(i+1) % 4]
-        for j in range(4):
-            # print ("Testando ", i," contra ",j)
-            # Personagens[Objeto1].ImprimeEnvelope("\nEnvelope 1: ", "\n");
-            # Personagens[Objeto2].ImprimeEnvelope("Envelope 2: ", "\n");
-            C = Personagens[P2].Envelope[j]
-            D = Personagens[P2].Envelope[(j+1) % 4]
-            # A.imprime("A:","\n");
-            # B.imprime("B:","\n");
-            # C.imprime("C:","\n");
-            # D.imprime("D:","\n\n");
-            if HaInterseccao(A, B, C, D):
-                return True
-    return False
 
+    if P1.ativo and P2.ativo:
+        for i in range(4):
+            A = P1.Envelope[i]
+            B = P1.Envelope[(i+1) % 4]
+            for j in range(4):
+                # print ("Testando ", i," contra ",j)
+                # Personagens[Objeto1].ImprimeEnvelope("\nEnvelope 1: ", "\n");
+                # Personagens[Objeto2].ImprimeEnvelope("Envelope 2: ", "\n");
+                C = P2.Envelope[j]
+                D = P2.Envelope[(j+1) % 4]
+                # A.imprime("A:","\n");
+                # B.imprime("B:","\n");
+                # C.imprime("C:","\n");
+                # D.imprime("D:","\n\n");
+                if HaInterseccao(A, B, C, D):
+                    return True
+    return False
 
 
 # ***********************************************************************************
 def AtualizaEnvelope(i):
     global Personagens
-    id = Personagens[i].IdDoModelo
-    MM = Modelos[id]
+    if Personagens[i].ativo:
+        id = Personagens[i].IdDoModelo
+        MM = Modelos[id]
 
-    P = Personagens[i]
-    V = P.Direcao * (MM.nColunas/2.0)
-    V.rotacionaZ(90)
-    A = P.PosicaoDoPersonagem + V
-    B = A + P.Direcao*MM.nLinhas
+        P = Personagens[i]
+        V = P.Direcao * (MM.nColunas / 2.0)
+        V.rotacionaZ(90)
+        A = P.PosicaoDoPersonagem + V
+        B = A + P.Direcao * MM.nLinhas
 
-    V = P.Direcao * MM.nColunas
-    V.rotacionaZ(-90)
-    C = B + V
+        V = P.Direcao * MM.nColunas
+        V.rotacionaZ(-90)
+        C = B + V
 
-    V = P.Direcao * -1 * MM.nLinhas
-    D = C + V
+        V = P.Direcao * -1 * MM.nLinhas
+        D = C + V
 
-    # Desenha o envelope
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!! Comentei aqui para que o envelope(hitbox) não seja desenhado !!!!!!!!!!!!!!!!!!!!!!!!!!!
-    # SetColor(Red)
-    # glBegin(GL_LINE_LOOP)
-    # glVertex2f(A.x, A.y)
-    # glVertex2f(B.x, B.y)
-    # glVertex2f(C.x, C.y)
-    # glVertex2f(D.x, D.y)
-    # glEnd()
-    # if (imprimeEnvelope):
-    #     A.imprime("A:");
-    #     B.imprime("B:");
-    #     C.imprime("C:");
-    #     D.imprime("D:");
-    #     print("");
+        if imprimeEnvelope:
+            SetColor(Red)
+            glBegin(GL_LINE_LOOP)
+            glVertex2f(A.x, A.y)
+            glVertex2f(B.x, B.y)
+            glVertex2f(C.x, C.y)
+            glVertex2f(D.x, D.y)
+            glEnd()
+            
+            A.imprime("A:")
+            B.imprime("B:")
+            C.imprime("C:")
+            D.imprime("D:")
+            print("")
 
-    Personagens[i].Envelope[0] = A
-    Personagens[i].Envelope[1] = B
-    Personagens[i].Envelope[2] = C
-    Personagens[i].Envelope[3] = D
+        Personagens[i].Envelope[0] = A
+        Personagens[i].Envelope[1] = B
+        Personagens[i].Envelope[2] = C
+        Personagens[i].Envelope[3] = D
+
 
 # ***********************************************************************************
 # Gera sempre uma posicao na metade de baixo da tela
@@ -452,76 +553,68 @@ def GeraPosicaoAleatoria():
 # ***********************************************************************************
 def AtualizaJogo():
     global Personagens, nInstancias
+    TestaColisaoTirosInimigos()
+    TestaColisaoTirosJogador()
+    count = 0
     for i in range(0, nInstancias):
-        AtualizaEnvelope(i)
-        if (imprimeEnvelope):  # pressione E para alterar esta flag
-            print("Envelope ", i)
-            Personagens[i].ImprimeEnvelope("", "")
+        if Personagens[i].ativo:  # Verifica se o personagem está ativo
+            AtualizaEnvelope(i)
 
-    for i in range(1, nInstancias):
-        if i + AREA_DE_BACKUP < len(Personagens):  # Certifique-se de que o índice está dentro do intervalo
-            if TestaColisao(0, i):
-                Personagens[i] = copy.deepcopy(Personagens[i+AREA_DE_BACKUP])
-                Personagens[i].Posicao = GeraPosicaoAleatoria()
-                Personagens[i].Posicao.imprime("Nova posicao:")
-                ang = random.randint(0, 360)
-                Personagens[i].Rotacao = ang
-                Personagens[i].Direcao = Ponto(0, 1)
-                Personagens[i].Direcao.rotacionaZ(ang)
-                print("Nova Orientacao: ", ang)
-            else:
-                pass
-        else:
-            print("Índice fora do alcance:", i + AREA_DE_BACKUP)
+    # for i in range(1, nInstancias):
+    #     if Personagens[i].ativo:
+    #         if TestaColisao(Personagens[0], Personagens[i]):
+    #             Personagens[i] = copy.deepcopy(Personagens[i + AREA_DE_BACKUP])
+    #             Personagens[i].Posicao = GeraPosicaoAleatoria()
+    #             Personagens[i].Posicao.imprime("Nova posicao:")
+    #             ang = random.randint(0, 360)
+    #             Personagens[i].Rotacao = ang
+    #             Personagens[i].Direcao = Ponto(0, 1)
+    #             Personagens[i].Direcao.rotacionaZ(ang)
+    #             Personagens[i].ativo = False
+    #             print("Nova Orientacao: ", ang)
+    #             GeraNovosInimigos()
+            
+
 
 
 
 def AtualizaPersonagens(tempoDecorrido):
     global nInstancias
     LarguraDoUniverso = 150
+    jogador_atualizado = False  
+
     for i in range(0, nInstancias):
-        Personagens[i].AtualizaPosicao(tempoDecorrido)
+        if Personagens[i].ativo:
+            # Lógica especial para a nave do jogador
+            if i == 0:
+                if not jogador_atualizado:
+                    jogador_atualizado = True  # Marca que o jogador foi atualizado
+                    Personagens[i].AtualizaPosicao(tempoDecorrido)
 
-        if i == 0:  # Lógica de envolvimento para a nave do jogador
-        # Lógica horizontal
-            if Personagens[i].Posicao.x > LarguraDoUniverso:
-                Personagens[i].Posicao.x -= 2 * LarguraDoUniverso
-            elif Personagens[i].Posicao.x < -LarguraDoUniverso:
-                Personagens[i].Posicao.x += 2 * LarguraDoUniverso
+                    # Lógica horizontal
+                    if Personagens[i].Posicao.x > LarguraDoUniverso:
+                        Personagens[i].Posicao.x -= 2 * LarguraDoUniverso
+                    elif Personagens[i].Posicao.x < -LarguraDoUniverso:
+                        Personagens[i].Posicao.x += 2 * LarguraDoUniverso
 
-            # Lógica vertical
-            if Personagens[i].Posicao.y > LarguraDoUniverso:
-                Personagens[i].Posicao.y -= 2 * LarguraDoUniverso
-            elif Personagens[i].Posicao.y < -LarguraDoUniverso:
-                Personagens[i].Posicao.y += 2 * LarguraDoUniverso
-        else:
-            if Personagens[i].Posicao.x > LarguraDoUniverso:
-                Personagens[i].Posicao.x -= 2 * LarguraDoUniverso
-            elif Personagens[i].Posicao.x < -LarguraDoUniverso:
-                Personagens[i].Posicao.x += 2 * LarguraDoUniverso
+                    # Lógica vertical
+                    if Personagens[i].Posicao.y > LarguraDoUniverso:
+                        Personagens[i].Posicao.y -= 2 * LarguraDoUniverso
+                    elif Personagens[i].Posicao.y < -LarguraDoUniverso:
+                        Personagens[i].Posicao.y += 2 * LarguraDoUniverso
+                    
+            else:
+                Personagens[i].AtualizaPosicao(tempoDecorrido)
 
-            # Lógica vertical
-            if Personagens[i].Posicao.y > LarguraDoUniverso:
-                Personagens[i].Posicao.y -= 2 * LarguraDoUniverso
-            elif Personagens[i].Posicao.y < -LarguraDoUniverso:
-                Personagens[i].Posicao.y += 2 * LarguraDoUniverso
-        # else:  # Lógica para naves inimigas
-        #     if Personagens[i].Posicao.x > LarguraDoUniverso or Personagens[i].Posicao.x < -LarguraDoUniverso:
-        #         #Personagens[i].Posicao = Ponto(0,0)
-        #         Personagens[i].Rotacao = (Personagens[i].Rotacao + 180) % 360  # Ajusta a rotação para oposta
-        #     if Personagens[i].Posicao.y > LarguraDoUniverso or Personagens[i].Posicao.y < -LarguraDoUniverso:
-        #         #Personagens[i].Posicao = Ponto(0,0)
-        #         Personagens[i].Rotacao = (Personagens[i].Rotacao  + 180) % 360  # Ajusta a rotação para oposta
+                if Personagens[i].Posicao.x > LarguraDoUniverso:
+                    Personagens[i].Posicao.x -= 2 * LarguraDoUniverso
+                elif Personagens[i].Posicao.x < -LarguraDoUniverso:
+                    Personagens[i].Posicao.x += 2 * LarguraDoUniverso
 
-        #     #Normaliza a direção após a mudança
-        #     magnitude = math.sqrt(Personagens[i].Direcao.x**2 + Personagens[i].Direcao.y**2)
-        #     if magnitude > 0:
-        #         Personagens[i].Direcao.x /= magnitude
-        #         Personagens[i].Direcao.y /= magnitude
-
-        #     #Ajuste para manter a nave dentro dos limites do universo
-        #     Personagens[i].Posicao.x = max(min(Personagens[i].Posicao.x, LarguraDoUniverso), -LarguraDoUniverso)
-        #     Personagens[i].Posicao.y = max(min(Personagens[i].Posicao.y, LarguraDoUniverso), -LarguraDoUniverso)
+                if Personagens[i].Posicao.y > LarguraDoUniverso:
+                    Personagens[i].Posicao.y -= 2 * LarguraDoUniverso
+                elif Personagens[i].Posicao.y < -LarguraDoUniverso:
+                    Personagens[i].Posicao.y += 2 * LarguraDoUniverso
 
     AtualizaJogo()
 
@@ -530,11 +623,21 @@ def AtualizaPersonagens(tempoDecorrido):
 # ***********************************************************************************
 def DesenhaPersonagens():
     global PersonagemAtual, nInstancias
-
+    existe = False
+    for p in Personagens:
+        if p.IdDoModelo == 0 and p.ativo == True:
+            existe = True
+            break
+ 
+        
     for i in range(0, nInstancias):
         if Personagens[i].ativo:  # Desenha apenas personagens ativos
             PersonagemAtual = i
             Personagens[i].Desenha()
+
+        if Personagens[0].ativo and not existe:  # Desenha apenas personagens ativos
+                PersonagemAtual = 0
+                Personagens[0].Desenha()
 
 
 
@@ -569,7 +672,6 @@ def CarregaModelos():
     Modelos.append(ModeloMatricial())
     Modelos[12].leModelo("TiroInimigo.txt")
 
-
     print("Modelo 0")
     Modelos[0].Imprime()
     print("Modelo 1")
@@ -596,6 +698,7 @@ def CarregaModelos():
     Modelos[11].Imprime()
     print("Modelo 12")
     Modelos[12].Imprime()
+
 
 def DesenhaCelula():
     glBegin(GL_QUADS)
@@ -658,7 +761,6 @@ def CriaInstancias():
     ang = 360.0
     modelo_nave = Modelos[0]  # Supondo que o Modelo 0 é a nave
     centro_pivot_nave = Ponto(modelo_nave.nColunas / 2, modelo_nave.nLinhas * 0.1)
-
     modelo_inimiga = Modelos[1]
     centro_pivot_nave_inimiga = Ponto(modelo_inimiga.nColunas / 2, modelo_inimiga.nLinhas * 0.1)
     Personagens[i].Posicao = Ponto(-2.5, 0)
@@ -670,8 +772,10 @@ def CriaInstancias():
     Personagens[i].Direcao = Ponto(0, 1)
     Personagens[i].Direcao.rotacionaZ(ang)
     Personagens[i].Velocidade = 10
-    Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
     Personagens[i].tipo = 'Jogador'
+    Personagens[i].ativo = True
+    # Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])  caso descomente ira duplicar o personagem ????????
+
 
     # Nave Inimiga
     for j in range(1, 9):
@@ -687,9 +791,10 @@ def CriaInstancias():
         Personagens[i].Direcao = Ponto(0, 1)
         Personagens[i].Direcao.rotacionaZ(ang)
         Personagens[i].Velocidade = 15
+        Personagens[i].ativo = True
         Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
 
-    # Corações
+    # Corações (vidas)
     LarguraDoUniverso = 150
     x = LarguraDoUniverso - 18  # largura_coracao
     y = LarguraDoUniverso - 14  # altura_coracao
@@ -704,13 +809,15 @@ def CriaInstancias():
         Personagens[i].Direcao = Ponto(0, 0)
         Personagens[i].Direcao.rotacionaZ(0)
         Personagens[i].Velocidade = 0
+        Personagens[i].tipo = 'Vida'
+        Personagens[i].ativo = True
         Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
         x -= 18  # Muda a posição X para o próximo coração
 
     # Tiros do Jogador
     for k in range(max_tiros):
         nova_instancia = Instancia()
-        nova_instancia.ativo = False
+        nova_instancia.ativo = True
         nova_instancia.Posicao = Ponto(0, 0)
         nova_instancia.Direcao = Ponto(0, 1)
         nova_instancia.Escala = Ponto(1, 1)
@@ -724,7 +831,7 @@ def CriaInstancias():
     # Tiros Inimigos
     for k in range(max_tiros):
         tiro_inimigo_inst = Instancia()
-        tiro_inimigo_inst.ativo = False
+        tiro_inimigo_inst.ativo = True
         tiro_inimigo_inst.Posicao = Ponto(0, 0)
         tiro_inimigo_inst.Direcao = Ponto(0, -1)  # Direção para baixo
         tiro_inimigo_inst.Escala = Ponto(1, 1)
@@ -732,12 +839,35 @@ def CriaInstancias():
         tiro_inimigo_inst.IdDoModelo = 12  # Modelo do tiro inimigo
         tiro_inimigo_inst.Modelo = DesenhaPersonagemMatricial
         tiro_inimigo_inst.tipo = 'TiroInimigo'
-        tiro_inimigo_inst.Velocidade = 5
+        tiro_inimigo_inst.Velocidade = 3
         Personagens.append(tiro_inimigo_inst)
 
     nInstancias = len(Personagens)
 
 
+def GeraNovosInimigos():
+    global Personagens, Modelos
+    modelo_nave = Modelos[0]  # Supondo que o Modelo 0 é a nave
+    centro_pivot_nave = Ponto(modelo_nave.nColunas / 2,
+                              modelo_nave.nLinhas * 0.1)
+
+    modelo_inimiga = Modelos[1]
+    centro_pivot_nave_inimiga = Ponto(
+        modelo_inimiga.nColunas / 2, modelo_inimiga.nLinhas * 0.1)
+    for i in range(1, 9):
+        if not Personagens[i].ativo:
+            ang = random.randint(-180, 180)
+            Personagens[i].Posicao = GeraPosicaoAleatoria()
+            Personagens[i].Escala = Ponto(1, 1)
+            Personagens[i].Rotacao = ang
+            Personagens[i].IdDoModelo = i
+            Personagens[i].Modelo = DesenhaPersonagemMatricial
+            Personagens[i].Pivot = centro_pivot_nave_inimiga
+            Personagens[i].Direcao = Ponto(0, 1)
+            Personagens[i].Direcao.rotacionaZ(ang)
+            Personagens[i].Velocidade = 15
+            Personagens[i].ativo = True
+            Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
 
 def atualiza_tiros():
     global Personagens, LarguraDoUniverso
@@ -748,8 +878,11 @@ def atualiza_tiros():
             tiro.ativo = False
             print(f"Tiro desativado em {tiro.Posicao.x}, {tiro.Posicao.y}")
 
+
+
 def dispara_tiro_jogador():
     global Personagens, tiros_disparados, recarregando, tempo_de_recarga
+
     if recarregando:
         tempo_atual = time.time()
         if tempo_atual - tempo_de_recarga >= 2:
@@ -757,15 +890,22 @@ def dispara_tiro_jogador():
             tiros_disparados = 0
         else:
             return
-    jogador = next((p for p in Personagens if p.tipo == 'Jogador'), None)
-    if jogador and tiros_disparados < 10:
+
+    # Obtém a posição da ponta da nave
+    jogador = Personagens[0]
+    ponta_nave = Ponto(jogador.Envelope[1].x, jogador.Envelope[1].y)
+
+    # Ajusta a posição do tiro com base na geometria da nave e rotação
+    offset = Ponto(17.5, -15)  # Ajuste conforme necessário para o modelo da nave
+    offset.rotacionaZ(jogador.Rotacao)
+    ponta_nave += offset
+
+    if tiros_disparados < 10:
         tiro_disponivel = next((t for t in Personagens if t.tipo == 'TiroJogador' and not t.ativo), None)
         if tiro_disponivel:
             tiro_disponivel.ativo = True
-            # Configura manualmente a posição do tiro com base na geometria visual da nave
-            offset_x, offset_y = 0, 2  # Ajuste esses valores conforme a posição visual da ponta da arma
-            tiro_disponivel.Posicao = Ponto(jogador.Posicao.x + jogador.Direcao.x * offset_x, 
-                                             jogador.Posicao.y + jogador.Direcao.y * offset_y)
+            # Configura a posição do tiro na ponta da nave
+            tiro_disponivel.Posicao = Ponto(ponta_nave.x, ponta_nave.y)
             tiro_disponivel.Direcao = Ponto(jogador.Direcao.x, jogador.Direcao.y)
             tiro_disponivel.Velocidade = 8
             tiros_disparados += 1
@@ -774,21 +914,21 @@ def dispara_tiro_jogador():
                 tempo_de_recarga = time.time()
 
 
-
-
-
 def dispara_tiros_inimigos():
     global Personagens
-    for inimigo in [p for p in Personagens if p.tipo == 'Inimigo']:
+    for inimigo in [p for p in Personagens if p.tipo == 'Inimigo' and p.ativo]:
         if random.random() < 0.05:
-            tiro_disponivel = next((t for t in Personagens if t.tipo == 'TiroInimigo' and not t.ativo), None)
+            tiro_disponivel = next(
+                (t for t in Personagens if t.tipo == 'TiroInimigo' and not t.ativo), None)
             if tiro_disponivel:
                 tiro_disponivel.ativo = True
-                tiro_disponivel.Posicao = Ponto(inimigo.Posicao.x, inimigo.Posicao.y)
-                tiro_disponivel.Direcao = Ponto(inimigo.Direcao.x, inimigo.Direcao.y)
+                tiro_disponivel.Posicao = Ponto(
+                    inimigo.Posicao.x, inimigo.Posicao.y)
+                tiro_disponivel.Direcao = Ponto(
+                    inimigo.Direcao.x, inimigo.Direcao.y)
                 tiro_disponivel.Velocidade = 5
-                print(f"Tiro disparado por inimigo em {inimigo.Posicao.x}, {inimigo.Posicao.y}")
-
+                print(
+                    f"Tiro disparado por inimigo em {inimigo.Posicao.x}, {inimigo.Posicao.y}")
 
 
 def DesenhaTiros():
@@ -806,7 +946,7 @@ def DesenhaTiros():
 glutInit(sys.argv)
 glutInitDisplayMode(GLUT_RGBA)
 # Define o tamanho inicial da janela grafica do programa
-glutInitWindowSize(900, 900)
+glutInitWindowSize(1000, 1000)
 glutInitWindowPosition(100, 100)
 wind = glutCreateWindow("Exemplo de Criacao de Instancias")
 glutDisplayFunc(display)
@@ -816,6 +956,9 @@ glutKeyboardFunc(keyboard)
 glutSpecialFunc(arrow_keys)
 glutMouseFunc(mouse)
 init()
+
+for i in range(0, nInstancias):
+    print("Personagem ", i, " - ", Personagens[i].tipo)
 
 try:
     glutMainLoop()
