@@ -120,10 +120,7 @@ def animate():
     rand = random.randint(0, 100)
     if rand <= 15:
         dispara_tiros_inimigos()
-
-
     
-
     glutPostRedisplay()
 
 
@@ -170,8 +167,8 @@ def display_game_over():
 
     glColor3f(1, 1, 1)  # Cor do texto
     DesenhaTexto(f"Game Over", -10, 20, GLUT_BITMAP_TIMES_ROMAN_24)
-    DesenhaTexto(f"Pontos: {pontos}", -10, 0, GLUT_BITMAP_HELVETICA_18)
-    DesenhaTexto(f"Pressione 'r' para jogar novamente", -10, -20, GLUT_BITMAP_HELVETICA_18)
+    DesenhaTexto(f"Pontos: {pontos}", -10, 0, GLUT_BITMAP_TIMES_ROMAN_24)
+    DesenhaTexto(f"Pressione 'r' para jogar novamente", -10, -20, GLUT_BITMAP_TIMES_ROMAN_24)
     DesenhaTexto(f"Pressione 'ESC' para sair", -10, -40, GLUT_BITMAP_HELVETICA_18)
 
     glutSwapBuffers()
@@ -456,16 +453,13 @@ def TestaColisaoTirosJogador():
     for tiro in [p for p in Personagens if p.tipo == 'TiroInimigo' and p.ativo]:
         for vida in [p for p in Personagens if p.tipo == 'Vida' and p.ativo]:
             if Personagens[0].ativo and TestaColisao(tiro, Personagens[0]):
+                vida.ativo = False
                 tiro.ativo = False
                 vidas -= 1
-                vida.ativo = False
                 if vidas <= 0:
                     game_state = GAME_STATE_GAME_OVER
                     glutDisplayFunc(display_game_over)
                 return
-
-
-
 
                 
 
@@ -560,22 +554,7 @@ def AtualizaJogo():
         if Personagens[i].ativo:  # Verifica se o personagem está ativo
             AtualizaEnvelope(i)
 
-    # for i in range(1, nInstancias):
-    #     if Personagens[i].ativo:
-    #         if TestaColisao(Personagens[0], Personagens[i]):
-    #             Personagens[i] = copy.deepcopy(Personagens[i + AREA_DE_BACKUP])
-    #             Personagens[i].Posicao = GeraPosicaoAleatoria()
-    #             Personagens[i].Posicao.imprime("Nova posicao:")
-    #             ang = random.randint(0, 360)
-    #             Personagens[i].Rotacao = ang
-    #             Personagens[i].Direcao = Ponto(0, 1)
-    #             Personagens[i].Direcao.rotacionaZ(ang)
-    #             Personagens[i].ativo = False
-    #             print("Nova Orientacao: ", ang)
-    #             GeraNovosInimigos()
             
-
-
 
 
 def AtualizaPersonagens(tempoDecorrido):
@@ -811,7 +790,6 @@ def CriaInstancias():
         Personagens[i].Velocidade = 0
         Personagens[i].tipo = 'Vida'
         Personagens[i].ativo = True
-        Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
         x -= 18  # Muda a posição X para o próximo coração
 
     # Tiros do Jogador
