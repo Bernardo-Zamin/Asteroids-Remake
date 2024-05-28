@@ -151,7 +151,7 @@ def reshape(w, h):
 # ***********************************************************************************
 
 
-def DesenhaTexto(string, x, y, tamanho=GLUT_BITMAP_HELVETICA_18):
+def DesenhaTexto(string, x, y, tamanho=GLUT_BITMAP_TIMES_ROMAN_24):
     glRasterPos2f(x, y)
     for c in string:
         glutBitmapCharacter(tamanho, ord(c))
@@ -165,13 +165,16 @@ def display_game_over():
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-    glColor3f(1, 1, 1)  # Cor do texto
-    DesenhaTexto(f"Game Over", -10, 20, GLUT_BITMAP_TIMES_ROMAN_24)
-    DesenhaTexto(f"Pontos: {pontos}", -10, 0, GLUT_BITMAP_TIMES_ROMAN_24)
-    DesenhaTexto(f"Pressione 'r' para jogar novamente", -10, -20, GLUT_BITMAP_TIMES_ROMAN_24)
-    DesenhaTexto(f"Pressione 'ESC' para sair", -10, -40, GLUT_BITMAP_HELVETICA_18)
+    glColor3f(1, 0, 0)  # Cor do texto
+
+    # Ajuste das coordenadas para centralizar o texto
+    DesenhaTexto(f"Game Over", -30, 40, GLUT_BITMAP_TIMES_ROMAN_24)
+    DesenhaTexto(f"Pontos: {pontos}", 15, 40, GLUT_BITMAP_TIMES_ROMAN_24)
+    DesenhaTexto(f"Pressione 'r' para jogar novamente", -30, 10, GLUT_BITMAP_TIMES_ROMAN_24)
+    DesenhaTexto(f"Pressione 'ESC' para sair", -30, -10, GLUT_BITMAP_HELVETICA_18)
 
     glutSwapBuffers()
+
 
 
 def display():
@@ -198,7 +201,7 @@ def display():
     AtualizaPersonagens(DiferencaDeTempo)
     DesenhaTiros()
 
-    glColor3f(1, 1, 1)  # Cor do texto
+    glColor3f(0, 1, 0)  # Cor do texto
     DesenhaTexto(f"Pontos: {pontos}", -10, 140)  # Ajuste as coordenadas conforme necessário
 
     glutSwapBuffers()
