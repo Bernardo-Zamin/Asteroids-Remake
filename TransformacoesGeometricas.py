@@ -1,21 +1,11 @@
 # ***********************************************************************************
-#   ExibePoligonos.py
+# ExibePoligonos.py
 #       Autor: Márcio Sarroglia Pinho
 #       pinho@pucrs.br
 #   Este programa cria um conjunto de INSTANCIAS
 #   Para construir este programa, foi utilizada a biblioteca PyOpenGL, disponível em
 #   http://pyopengl.sourceforge.net/documentation/index.html
 #
-#   Sugere-se consultar também as páginas listadas
-#   a seguir:
-#   http://bazaar.launchpad.net/~mcfletch/pyopengl-demo/trunk/view/head:/PyOpenGL-Demo/NeHe/lesson1.py
-#   http://pyopengl.sourceforge.net/documentation/manual-3.0/index.html#GLUT
-#
-#   No caso de usar no MacOS, pode ser necessário alterar o arquivo ctypesloader.py,
-#   conforme a descrição que está nestes links:
-#   https://stackoverflow.com/questions/63475461/unable-to-import-opengl-gl-in-python-on-macos
-#   https://stackoverflow.com/questions/6819661/python-location-on-mac-osx
-#   Veja o arquivo Patch.rtf, armazenado na mesma pasta deste fonte.
 # ***********************************************************************************
 
 from OpenGL.GL import *
@@ -31,7 +21,6 @@ from datetime import datetime
 import time
 import random
 from os import system, name
-
 
 # ***********************************************************************************
 
@@ -77,12 +66,12 @@ recarregando = False
 pontos = 0
 
 # Estados do jogo
+GAME_STATE_START = 0
 GAME_STATE_PLAYING = 1
 GAME_STATE_GAME_OVER = 2
 
 # Estado atual do jogo
-game_state = GAME_STATE_PLAYING
-
+game_state = GAME_STATE_START
 
 
 # tempo_para_mudar_direcao = 2.0  # tempo em segundos para mudar de direção
@@ -122,8 +111,6 @@ def animate():
         dispara_tiros_inimigos()
     
     glutPostRedisplay()
-
-
 def atualizar_meteoros():
     global meteoros, LarguraDoUniverso
     for meteoro in meteoros:
@@ -148,13 +135,34 @@ def reshape(w, h):
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-# ***********************************************************************************
 
 
 def DesenhaTexto(string, x, y, tamanho=GLUT_BITMAP_TIMES_ROMAN_24):
     glRasterPos2f(x, y)
     for c in string:
         glutBitmapCharacter(tamanho, ord(c))
+
+def display_start_screen():
+    # Limpa a tela com a cor de fundo
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+
+    glColor3f(1, 0, 0)  # Cor do texto
+
+    # Ajuste das coordenadas para centralizar o texto
+    DesenhaTexto("Asteroids Remake", -30, 80, GLUT_BITMAP_TIMES_ROMAN_24)
+    DesenhaTexto("Pressione W para mover para frente", -50, 30, GLUT_BITMAP_HELVETICA_18)
+    DesenhaTexto("Pressione S para mover para trás", -50, 10, GLUT_BITMAP_HELVETICA_18)
+    DesenhaTexto("Pressione A para rotacionar para a esquerda", -50, -10, GLUT_BITMAP_HELVETICA_18)
+    DesenhaTexto("Pressione D para rotacionar para a direita", -50, -30, GLUT_BITMAP_HELVETICA_18)
+    DesenhaTexto("Pressione R para começar", -50, -50, GLUT_BITMAP_HELVETICA_18)
+
+    DesenhaTexto("Objetivo: Fazer o máximo de pontos possíveis e não morrer para as naves inimigas", -120, -90, GLUT_BITMAP_HELVETICA_18)
+    DesenhaTexto("Caso queira a movimentação pelas setas do teclado também funciona", -120, -100, GLUT_BITMAP_HELVETICA_18)
+    DesenhaTexto("Caso deseja enxergar a hitbox dos elementos pressione E", -120, -110, GLUT_BITMAP_HELVETICA_18)
+    glutSwapBuffers()
 
 def display_game_over():
     global pontos
@@ -169,18 +177,19 @@ def display_game_over():
 
     # Ajuste das coordenadas para centralizar o texto
     DesenhaTexto(f"Game Over", -30, 40, GLUT_BITMAP_TIMES_ROMAN_24)
-    DesenhaTexto(f"Pontos: {pontos}", 15, 40, GLUT_BITMAP_TIMES_ROMAN_24)
-    DesenhaTexto(f"Pressione 'r' para jogar novamente", -30, 10, GLUT_BITMAP_TIMES_ROMAN_24)
-    DesenhaTexto(f"Pressione 'ESC' para sair", -30, -10, GLUT_BITMAP_HELVETICA_18)
+    DesenhaTexto(f"Pontos: {pontos}", -30, 20, GLUT_BITMAP_HELVETICA_18)
+    DesenhaTexto(f"Pressione R para jogar novamente", -30, 10, GLUT_BITMAP_HELVETICA_18)
+    DesenhaTexto(f"Pressione ESC para sair", -30, 0, GLUT_BITMAP_HELVETICA_18)
 
     glutSwapBuffers()
-
-
 
 def display():
     global TempoInicial, TempoTotal, TempoAnterior, pontos, game_state
 
-    if game_state == GAME_STATE_GAME_OVER:
+    if game_state == GAME_STATE_START:
+        display_start_screen()
+        return
+    elif game_state == GAME_STATE_GAME_OVER:
         display_game_over()
         return
 
@@ -213,16 +222,20 @@ def display():
 # Note the use of Python tuples to pass in: (key, x, y)
 # ESCAPE = '\033'
 ESCAPE = b'\x1b'
-
-
 def keyboard(*args):
     global imprimeEnvelope, tiros, max_tiros, Personagens, game_state
     key = args[0]
 
-    if game_state == GAME_STATE_GAME_OVER:
+    if game_state == GAME_STATE_START:
+        if key == b'r':
+            game_state = GAME_STATE_PLAYING
+        elif key == ESCAPE:  # 'q' para sair
+            os._exit(0)
+        return
+    elif game_state == GAME_STATE_GAME_OVER:
         if key == b'r':  # 'r' para reiniciar
             reiniciar_jogo()
-        elif key == b'q' or key == ESCAPE:  # 'q' para sair
+        elif key == ESCAPE:  # 'q' para sair
             os._exit(0)
     else:
         # Comandos do jogo normal
@@ -243,12 +256,7 @@ def keyboard(*args):
         if key == b'e':
             imprimeEnvelope = not imprimeEnvelope
 
-        if key == b'q' or key == ESCAPE:
-            os._exit(0)
-
         glutPostRedisplay()
-
-
 
 
 
@@ -820,7 +828,7 @@ def CriaInstancias():
         tiro_inimigo_inst.IdDoModelo = 12  # Modelo do tiro inimigo
         tiro_inimigo_inst.Modelo = DesenhaPersonagemMatricial
         tiro_inimigo_inst.tipo = 'TiroInimigo'
-        tiro_inimigo_inst.Velocidade = 3
+        tiro_inimigo_inst.Velocidade = 2
         Personagens.append(tiro_inimigo_inst)
 
     nInstancias = len(Personagens)
@@ -857,7 +865,7 @@ def atualiza_tiros():
         # Verifica se o tiro saiu dos limites do universo
         if abs(tiro.Posicao.x) > LarguraDoUniverso or abs(tiro.Posicao.y) > LarguraDoUniverso:
             tiro.ativo = False
-            print(f"Tiro desativado em {tiro.Posicao.x}, {tiro.Posicao.y}")
+            # print(f"Tiro desativado em {tiro.Posicao.x}, {tiro.Posicao.y}")
 
 
 
@@ -908,8 +916,8 @@ def dispara_tiros_inimigos():
                 tiro_disponivel.Direcao = Ponto(
                     inimigo.Direcao.x, inimigo.Direcao.y)
                 tiro_disponivel.Velocidade = 5
-                print(
-                    f"Tiro disparado por inimigo em {inimigo.Posicao.x}, {inimigo.Posicao.y}")
+                # print(
+                #     f"Tiro disparado por inimigo em {inimigo.Posicao.x}, {inimigo.Posicao.y}")
 
 
 def DesenhaTiros():
@@ -938,8 +946,7 @@ glutSpecialFunc(arrow_keys)
 glutMouseFunc(mouse)
 init()
 
-for i in range(0, nInstancias):
-    print("Personagem ", i, " - ", Personagens[i].tipo)
+
 
 try:
     glutMainLoop()
