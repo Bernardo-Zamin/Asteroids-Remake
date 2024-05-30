@@ -35,7 +35,7 @@ Max = Ponto()
 # lista de instancias do Personagens
 Personagens = [Instancia() for x in range(500)]
 
-AREA_DE_BACKUP = 50 
+AREA_DE_BACKUP = 50
 
 Modelos = []
 meteoros = []
@@ -72,10 +72,9 @@ game_state = GAME_STATE_INICIO
 def init():
     global Min, Max
     global TempoInicial, LarguraDoUniverso
-    # Define a cor do fundo da tela (AZUL)
     glClearColor(0, 0, 0, 1)
 
-    clear()  # limpa o console
+    clear()
     CarregaModelos()
     CriaInstancias()
     CriaMeteoros()
@@ -96,7 +95,7 @@ def animate():
     atualizar_meteoros()
     atualiza_tiros()
     rand = random.randint(0, 100)
-    if rand <= 10:
+    if rand <= 15:
         dispara_tiros_inimigos()
 
     glutPostRedisplay()
@@ -118,10 +117,9 @@ def reshape(w, h):
     glViewport(0, 0, w, h)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    # Cria uma folga na Janela de Selecão, com 10% das dimensoes do poligono
+
     BordaX = abs(Max.x-Min.x)*0.1
     BordaY = abs(Max.y-Min.y)*0.1
-    # glOrtho(Min.x-BordaX, Max.x+BordaX, Min.y-BordaY, Max.y+BordaY, 0.0, 1.0)
     glOrtho(Min.x, Max.x, Min.y, Max.y, 0.0, 1.0)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
@@ -134,33 +132,32 @@ def DesenhaTexto(string, x, y, tamanho=GLUT_BITMAP_TIMES_ROMAN_24):
 
 
 def display_start_screen():
-    # Limpa a tela com a cor de fundo
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-    glColor3f(0, 1, 0)  # Cor do texto
+    glColor3f(0, 1, 0)
 
-    # Ajuste das coordenadas para centralizar o texto
     DesenhaTexto("Asteroids Remake", -30, 80, GLUT_BITMAP_TIMES_ROMAN_24)
     DesenhaTexto("Pressione W para mover para frente",
-                 -50, 40, GLUT_BITMAP_HELVETICA_18) 
+                 -50, 40, GLUT_BITMAP_HELVETICA_18)
     DesenhaTexto("Pressione S para mover para trás",
                  -50, 30, GLUT_BITMAP_HELVETICA_18)
-    DesenhaTexto("Pressione A para rotacionar para a esquerda", 
+    DesenhaTexto("Pressione A para rotacionar para a esquerda",
                  -50, 20, GLUT_BITMAP_HELVETICA_18)
-    DesenhaTexto("Pressione D para rotacionar para a direita", 
+    DesenhaTexto("Pressione D para rotacionar para a direita",
                  -50, 10, GLUT_BITMAP_HELVETICA_18)
     DesenhaTexto("Pressione R para começar", -50, 0, GLUT_BITMAP_HELVETICA_18)
-    DesenhaTexto("Pressione ESPAÇO para atirar", 
+    DesenhaTexto("Pressione ESPAÇO para atirar",
                  -50, -10, GLUT_BITMAP_HELVETICA_18)
 
-    DesenhaTexto("Objetivo: Fazer o máximo de pontos possíveis e não morrer para as naves inimigas", 
+    DesenhaTexto("Objetivo: Fazer o máximo de pontos possíveis e não morrer para as naves inimigas",
                  -100, -50, GLUT_BITMAP_HELVETICA_18)
-    DesenhaTexto("Caso queira a movimentação pelas setas do teclado também funcionam", 
+    DesenhaTexto("Caso queira a movimentação pelas setas do teclado também funcionam",
                  -100, -60, GLUT_BITMAP_HELVETICA_18)
-    DesenhaTexto("Caso deseja enxergar a hitbox dos elementos pressione E", 
+    DesenhaTexto("Caso deseja enxergar a hitbox dos elementos pressione E",
                  -100, -70, GLUT_BITMAP_HELVETICA_18)
     glutSwapBuffers()
 
@@ -168,15 +165,13 @@ def display_start_screen():
 def display_game_over():
     global pontos
 
-    # Limpa a tela com a cor de fundo
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-    glColor3f(1, 0, 0)  # Cor do texto
+    glColor3f(1, 0, 0)
 
-    # Ajuste das coordenadas para centralizar o texto
     DesenhaTexto(f"Game Over", -30, 40, GLUT_BITMAP_TIMES_ROMAN_24)
     DesenhaTexto(f"Pontos: {pontos}", -30, 20, GLUT_BITMAP_HELVETICA_18)
     DesenhaTexto(f"Pressione R para jogar novamente", -
@@ -200,7 +195,6 @@ def display():
     TempoTotal = TempoAtual - TempoInicial
     DiferencaDeTempo = TempoAtual - TempoAnterior
 
-    # Limpa a tela com a cor de fundo
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     glMatrixMode(GL_MODELVIEW)
@@ -213,8 +207,8 @@ def display():
     AtualizaPersonagens(DiferencaDeTempo)
     DesenhaTiros()
 
-    glColor3f(0, 1, 0)  # Cor do texto
-    # Ajuste as coordenadas conforme necessário
+    glColor3f(0, 1, 0)
+
     DesenhaTexto(f"Pontos: {pontos}", -10, 140)
 
     glutSwapBuffers()
@@ -235,27 +229,27 @@ def keyboard(*args):
     if game_state == GAME_STATE_INICIO:
         if key == b'r':
             game_state = GAME_STATE_JOGANDO
-        elif key == ESCAPE:  # 'q' para sair
+        elif key == ESCAPE:
             os._exit(0)
         return
     elif game_state == GAME_STATE_FIM:
-        if key == b'r':  # 'r' para reiniciar
+        if key == b'r':
             reiniciar_jogo()
-        elif key == ESCAPE:  # 'q' para sair
+        elif key == ESCAPE:
             os._exit(0)
     else:
-        # Comandos do jogo normal
-        if key == b'w':  # W - Move para frente
+
+        if key == b'w':
             Personagens[0].Posicao += Personagens[0].Direcao * 10
-        if key == b's':  # S - Move para trás
+        if key == b's':
             Personagens[0].Posicao -= Personagens[0].Direcao * 10
-        if key == b'a':  # A - Rotaciona para esquerda
+        if key == b'a':
             Personagens[0].Rotacao += 10
             Personagens[0].Direcao.rotacionaZ(+10)
-        if key == b'd':  # D - Rotaciona para direita
+        if key == b'd':
             Personagens[0].Rotacao -= 10
             Personagens[0].Direcao.rotacionaZ(-10)
-        if key == b' ':  # Espaço - Dispara um tiro
+        if key == b' ':
             dispara_tiro_jogador()
             atualiza_tiros()
 
@@ -337,22 +331,18 @@ def clear():
 def reiniciar_jogo():
     global game_state, pontos, Personagens, TempoInicial, meteoros, vidas, tiros_disparados, recarregando, nInstancias
 
-    # Reiniciar estado do jogo
     game_state = GAME_STATE_JOGANDO
     pontos = 0
     vidas = 3
     tiros_disparados = 0
     recarregando = False
 
-    # Limpar listas de personagens e meteoros
     Personagens = [Instancia() for x in range(500)]
     meteoros = []
 
-    # Recriar instâncias e meteoros
     CriaInstancias()
     CriaMeteoros()
 
-    # Reiniciar o tempo
     TempoInicial = time.time()
 
     glutDisplayFunc(display)
@@ -360,23 +350,21 @@ def reiniciar_jogo():
 
 
 def CriaMeteoros():
-    for i in range(170):  # Cria 170 meteoros
+    for i in range(170):
         posicao = GeraPosicaoAleatoria()
-        # Tamanho aleatório para cada meteoro
         tamanho = random.uniform(0.1, 0.5)
-        # Velocidade muito pequena para movimento sutil
+
         velocidade = random.uniform(0.01, 0.015)
         direcao = Ponto(random.uniform(-1, 1),
-                        random.uniform(-1, 1))  # Direção aleatória
+                        random.uniform(-1, 1))
         meteoros.append(Meteoro(posicao, tamanho, velocidade, direcao))
 
 
 def DesenhaMeteoros():
     for meteoro in meteoros:
         glPushMatrix()
-        # Posiciona o meteoro
         glTranslate(meteoro.posicao.x, meteoro.posicao.y, 0)
-        DesenhaMeteoro(meteoro.tamanho)  # Desenha o meteoro
+        DesenhaMeteoro(meteoro.tamanho)
         glPopMatrix()
 
 
@@ -425,6 +413,20 @@ def DesenhaEixos():
 # ***********************************************************************************
 
 
+def TestaColisaoNaves():
+    global Personagens, game_state, vidas, pontos
+    abatido = False
+    for inimigo in [p for p in Personagens if p.tipo == 'Inimigo' and p.ativo]:
+        if TestaColisao(Personagens[0], inimigo):
+            Personagens[0].ativo = True
+            inimigo.ativo = False
+            pontos += 10
+            abatido = True
+            if abatido:
+                GeraNovosInimigos()
+            return
+
+
 def ColisaoTiroPersonagem(tiro, personagem):
 
     tiro_min_x = min(p.x for p in tiro.Envelope)
@@ -432,13 +434,11 @@ def ColisaoTiroPersonagem(tiro, personagem):
     tiro_min_y = min(p.y for p in tiro.Envelope)
     tiro_max_y = max(p.y for p in tiro.Envelope)
 
-    # tam envelope do personagem
     personagem_min_x = min(p.x for p in personagem.Envelope)
     personagem_max_x = max(p.x for p in personagem.Envelope)
     personagem_min_y = min(p.y for p in personagem.Envelope)
     personagem_max_y = max(p.y for p in personagem.Envelope)
 
-    # Verificar colisão
     if (tiro_min_x < personagem_max_x and
         tiro_max_x > personagem_min_x and
         tiro_min_y < personagem_max_y and
@@ -450,7 +450,6 @@ def ColisaoTiroPersonagem(tiro, personagem):
 
 def TestaColisaoTirosInimigos():
     global Personagens, pontos
-    # Loop através de todos os tiros do jogador
     for tiro in [p for p in Personagens if p.tipo == 'TiroJogador' and p.ativo]:
         for inimigo in [p for p in Personagens if p.tipo == 'Inimigo' and p.ativo]:
             if ColisaoTiroPersonagem(tiro, inimigo):
@@ -534,11 +533,11 @@ def AtualizaEnvelope(i):
             glVertex2f(D.x, D.y)
             glEnd()
 
-            A.imprime("A:")
-            B.imprime("B:")
-            C.imprime("C:")
-            D.imprime("D:")
-            print("")
+            # A.imprime("A:")
+            # B.imprime("B:")
+            # C.imprime("C:")
+            # D.imprime("D:")
+            # print("")
 
         Personagens[i].Envelope[0] = A
         Personagens[i].Envelope[1] = B
@@ -562,9 +561,9 @@ def AtualizaJogo():
     global Personagens, nInstancias
     TestaColisaoTirosInimigos()
     TestaColisaoTirosJogador()
-    count = 0
+    TestaColisaoNaves()
     for i in range(0, nInstancias):
-        if Personagens[i].ativo:  # Verifica se o personagem está ativo
+        if Personagens[i].ativo:
             AtualizaEnvelope(i)
 
 
@@ -575,19 +574,16 @@ def AtualizaPersonagens(tempoDecorrido):
 
     for i in range(0, nInstancias):
         if Personagens[i].ativo:
-            # Lógica especial para a nave do jogador
             if i == 0:
                 if not jogador_atualizado:
-                    jogador_atualizado = True  # Marca que o jogador foi atualizado
+                    jogador_atualizado = True
                     Personagens[i].AtualizaPosicao(tempoDecorrido)
 
-                    # Lógica horizontal
                     if Personagens[i].Posicao.x > LarguraDoUniverso:
                         Personagens[i].Posicao.x -= 2 * LarguraDoUniverso
                     elif Personagens[i].Posicao.x < -LarguraDoUniverso:
                         Personagens[i].Posicao.x += 2 * LarguraDoUniverso
 
-                    # Lógica vertical
                     if Personagens[i].Posicao.y > LarguraDoUniverso:
                         Personagens[i].Posicao.y -= 2 * LarguraDoUniverso
                     elif Personagens[i].Posicao.y < -LarguraDoUniverso:
@@ -619,11 +615,11 @@ def DesenhaPersonagens():
             break
 
     for i in range(0, nInstancias):
-        if Personagens[i].ativo:  # Desenha apenas personagens ativos
+        if Personagens[i].ativo:
             PersonagemAtual = i
             Personagens[i].Desenha()
 
-        if Personagens[0].ativo and not existe:  # Desenha apenas personagens ativos
+        if Personagens[0].ativo and not existe:
             PersonagemAtual = 0
             Personagens[0].Desenha()
 
@@ -631,7 +627,6 @@ def DesenhaPersonagens():
 # ***********************************************************************************
 def CarregaModelos():
     global Modelos
-    # Nave tem q ser o modelo 0 por conta da alteracao q fiz na rotacao de Z
     Modelos.append(ModeloMatricial())
     Modelos[0].leModelo("MatrizNave.txt")
     Modelos.append(ModeloMatricial())
@@ -743,10 +738,10 @@ def DesenhaPersonagemMatricial():
 def CriaInstancias():
     global Personagens, nInstancias
 
-    # Nave (Jogador)
+    # Jogador
     i = 0
     ang = 360.0
-    modelo_nave = Modelos[0]  # Supondo que o Modelo 0 é a nave
+    modelo_nave = Modelos[0]
     centro_pivot_nave = Ponto(modelo_nave.nColunas / 2,
                               modelo_nave.nLinhas * 0.1)
     modelo_inimiga = Modelos[1]
@@ -782,10 +777,10 @@ def CriaInstancias():
         Personagens[i].ativo = True
         Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])
 
-    # Corações (vidas)
+    # Corações
     LarguraDoUniverso = 150
-    x = LarguraDoUniverso - 18  
-    y = LarguraDoUniverso - 14 
+    x = LarguraDoUniverso - 18
+    y = LarguraDoUniverso - 14
     for k in range(3):
         i += 1
         Personagens[i].Posicao = Ponto(x, y)
@@ -799,44 +794,47 @@ def CriaInstancias():
         Personagens[i].Velocidade = 0
         Personagens[i].tipo = 'Vida'
         Personagens[i].ativo = True
-        x -= 18  # Muda a posição X para o próximo coração
+        x -= 18
 
+    modelo_tiro = Modelos[11]
+    centro_pivot_tiro = Ponto(modelo_tiro.nColunas / 2,
+                              modelo_tiro.nLinhas * 0.2)
     # Tiros do Jogador
     for k in range(max_tiros):
-        nova_instancia = Instancia()
-        nova_instancia.ativo = False
-        nova_instancia.Posicao = Ponto(0, 0)
-        nova_instancia.Direcao = Ponto(0, 1)
-        nova_instancia.Escala = Ponto(1, 1)
-        nova_instancia.Rotacao = 0
-        nova_instancia.IdDoModelo = 11  # Modelo do tiro do jogador
-        nova_instancia.Modelo = DesenhaPersonagemMatricial
-        nova_instancia.tipo = 'TiroJogador'
-        nova_instancia.Velocidade = 5
-        Personagens.append(nova_instancia)
+        i += 1
+        Personagens[i] = Instancia()
+        Personagens[i].ativo = False
+        Personagens[i].Posicao = Ponto(0, 0)
+        Personagens[i].Direcao = Ponto(0, 1)
+        Personagens[i].Escala = Ponto(1, 1)
+        Personagens[i].Pivot = centro_pivot_tiro
+        Personagens[i].Rotacao = 0
+        Personagens[i].IdDoModelo = 11
+        Personagens[i].Modelo = DesenhaPersonagemMatricial
+        Personagens[i].tipo = 'TiroJogador'
+        Personagens[i].Velocidade = 5
 
     # Tiros Inimigos
     for k in range(max_tiros):
-        tiro_inimigo_inst = Instancia()
-        tiro_inimigo_inst.ativo = False
-        tiro_inimigo_inst.Posicao = Ponto(0, 0)
-        tiro_inimigo_inst.Direcao = Ponto(0, -1)  # Direção para baixo
-        tiro_inimigo_inst.Escala = Ponto(1, 1)
-        tiro_inimigo_inst.Rotacao = 0
-        tiro_inimigo_inst.IdDoModelo = 12  # Modelo do tiro inimigo
-        tiro_inimigo_inst.Modelo = DesenhaPersonagemMatricial
-        tiro_inimigo_inst.tipo = 'TiroInimigo'
-        tiro_inimigo_inst.Velocidade = 2.5
-        Personagens.append(tiro_inimigo_inst)
+        i += 1
+        Personagens[i] = Instancia()
+        Personagens[i].ativo = False
+        Personagens[i].Posicao = Ponto(0, 0)
+        Personagens[i].Direcao = Ponto(0, -1)
+        Personagens[i].Escala = Ponto(1, 1)
+        Personagens[i].Pivot = centro_pivot_tiro
+        Personagens[i].Rotacao = 0
+        Personagens[i].IdDoModelo = 12
+        Personagens[i].Modelo = DesenhaPersonagemMatricial
+        Personagens[i].tipo = 'TiroInimigo'
+        Personagens[i].Velocidade = 2.0
+        Personagens.append(Personagens[i])
 
     nInstancias = len(Personagens)
 
 
 def GeraNovosInimigos():
     global Personagens, Modelos
-    modelo_nave = Modelos[0]  # Supondo que o Modelo 0 é a nave
-    centro_pivot_nave = Ponto(modelo_nave.nColunas / 2,
-                              modelo_nave.nLinhas * 0.1)
 
     modelo_inimiga = Modelos[1]
     centro_pivot_nave_inimiga = Ponto(
@@ -861,7 +859,6 @@ def atualiza_tiros():
     global Personagens, LarguraDoUniverso
     for tiro in [p for p in Personagens if p.tipo.startswith('Tiro') and p.ativo]:
         tiro.Posicao += tiro.Direcao * tiro.Velocidade
-        # Verifica se o tiro saiu dos limites do universo
         if abs(tiro.Posicao.x) > LarguraDoUniverso or abs(tiro.Posicao.y) > LarguraDoUniverso:
             tiro.ativo = False
             # print(f"Tiro desativado em {tiro.Posicao.x}, {tiro.Posicao.y}")
@@ -878,12 +875,9 @@ def dispara_tiro_jogador():
         else:
             return
 
-    # Obtém a posição da ponta da nave
     jogador = Personagens[0]
     ponta_nave = Ponto(jogador.Envelope[1].x, jogador.Envelope[1].y)
 
-    # Ajusta a posição do tiro com base na geometria da nave e rotação
-    # Ajuste conforme necessário para o modelo da nave
     offset = Ponto(17.5, -15)
     offset.rotacionaZ(jogador.Rotacao)
     ponta_nave += offset
@@ -893,7 +887,6 @@ def dispara_tiro_jogador():
             (t for t in Personagens if t.tipo == 'TiroJogador' and not t.ativo), None)
         if tiro_disponivel:
             tiro_disponivel.ativo = True
-            # Configura a posição do tiro na ponta da nave
             tiro_disponivel.Posicao = Ponto(ponta_nave.x, ponta_nave.y)
             tiro_disponivel.Direcao = Ponto(
                 jogador.Direcao.x, jogador.Direcao.y)
@@ -907,8 +900,7 @@ def dispara_tiro_jogador():
 def dispara_tiros_inimigos():
     global Personagens
     for inimigo in [p for p in Personagens if p.tipo == 'Inimigo' and p.ativo]:
-        # Apenas um tiro por inimigo por vez
-        if random.random() < 0.05:
+        if random.random() < 0.03:
             tiro_disponivel = next(
                 (t for t in Personagens if t.tipo == 'TiroInimigo' and not t.ativo), None)
             if tiro_disponivel:
@@ -918,8 +910,8 @@ def dispara_tiros_inimigos():
                 tiro_disponivel.Direcao = Ponto(
                     inimigo.Direcao.x, inimigo.Direcao.y)
                 tiro_disponivel.Velocidade = 2.5
-                print(
-                    f"Tiro disparado por inimigo em {inimigo.Posicao.x}, {inimigo.Posicao.y}")
+                # print(
+                # f"Tiro disparado por inimigo em {inimigo.Posicao.x}, {inimigo.Posicao.y}")
 
 
 def DesenhaTiros():
@@ -936,7 +928,6 @@ def DesenhaTiros():
 # ***********************************************************************************
 glutInit(sys.argv)
 glutInitDisplayMode(GLUT_RGBA)
-# Define o tamanho inicial da janela grafica do programa
 glutInitWindowSize(1000, 1000)
 glutInitWindowPosition(100, 100)
 wind = glutCreateWindow("Exemplo de Criacao de Instancias")
