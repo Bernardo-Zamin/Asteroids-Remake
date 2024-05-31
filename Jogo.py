@@ -943,7 +943,6 @@ glutSpecialFunc(arrow_keys)
 glutMouseFunc(mouse)
 init()
 
-
 try:
     glutMainLoop()
 except SystemExit:
