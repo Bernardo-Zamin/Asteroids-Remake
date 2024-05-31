@@ -67,8 +67,6 @@ game_state = GAME_STATE_INICIO
 
 
 # ***********************************************************************************
-
-
 def init():
     global Min, Max
     global TempoInicial, LarguraDoUniverso
@@ -127,8 +125,8 @@ def reshape(w, h):
 
 def DesenhaTexto(string, x, y, tamanho=GLUT_BITMAP_TIMES_ROMAN_24):
     glRasterPos2f(x, y)
-    for c in string:
-        glutBitmapCharacter(tamanho, ord(c))
+    for char in string:
+        glutBitmapCharacter(tamanho, ord(char))
 
 
 def display_start_screen():
@@ -238,7 +236,6 @@ def keyboard(*args):
         elif key == ESCAPE:
             os._exit(0)
     else:
-
         if key == b'w':
             Personagens[0].Posicao += Personagens[0].Direcao * 10
         if key == b's':
@@ -469,7 +466,8 @@ def TestaColisaoTirosJogador():
             tiro.ativo = False
             vidas -= 1
             # Desativar um coração (vida) da tela
-            vida_para_desativar = next((p for p in Personagens if p.tipo == 'Vida' and p.ativo), None)
+            vida_para_desativar = next(
+                (p for p in Personagens if p.tipo == 'Vida' and p.ativo), None)
             if vida_para_desativar:
                 vida_para_desativar.ativo = False
 
@@ -477,7 +475,6 @@ def TestaColisaoTirosJogador():
                 game_state = GAME_STATE_FIM
                 glutDisplayFunc(display_game_over)
             return
-
 
 
 def TestaColisao(P1, P2) -> bool:
@@ -748,9 +745,6 @@ def CriaInstancias():
     modelo_nave = Modelos[0]
     centro_pivot_nave = Ponto(modelo_nave.nColunas / 2,
                               modelo_nave.nLinhas * 0.1)
-    modelo_inimiga = Modelos[1]
-    centro_pivot_nave_inimiga = Ponto(
-        modelo_inimiga.nColunas / 2, modelo_inimiga.nLinhas * 0.1)
     Personagens[i].Posicao = Ponto(-2.5, 0)
     Personagens[i].Escala = Ponto(1, 1)
     Personagens[i].Rotacao = ang
@@ -764,6 +758,9 @@ def CriaInstancias():
     Personagens[i].ativo = True
     # Personagens[i+AREA_DE_BACKUP] = copy.deepcopy(Personagens[i])  caso descomente ira duplicar o personagem ????????
 
+    modelo_inimigo = Modelos[1]
+    centro_pivot_nave_inimigo = Ponto(
+        modelo_inimigo.nColunas / 2, modelo_inimigo.nLinhas * 0.02)
     # Nave Inimiga
     for j in range(1, 9):
         i += 1
@@ -774,7 +771,7 @@ def CriaInstancias():
         Personagens[i].Rotacao = ang
         Personagens[i].IdDoModelo = j
         Personagens[i].Modelo = DesenhaPersonagemMatricial
-        Personagens[i].Pivot = centro_pivot_nave_inimiga
+        Personagens[i].Pivot = centro_pivot_nave_inimigo
         Personagens[i].Direcao = Ponto(0, 1)
         Personagens[i].Direcao.rotacionaZ(ang)
         Personagens[i].Velocidade = 10
@@ -802,7 +799,7 @@ def CriaInstancias():
 
     modelo_tiro = Modelos[11]
     centro_pivot_tiro = Ponto(modelo_tiro.nColunas / 2,
-                              modelo_tiro.nLinhas * 0.2)
+                              modelo_tiro.nLinhas * 0.5)
     # Tiros do Jogador
     for k in range(max_tiros):
         i += 1
@@ -903,6 +900,7 @@ def dispara_tiro_jogador():
 
 def dispara_tiros_inimigos():
     global Personagens
+
     for inimigo in [p for p in Personagens if p.tipo == 'Inimigo' and p.ativo]:
         if random.random() < 0.03:
             tiro_disponivel = next(
@@ -947,3 +945,6 @@ try:
     glutMainLoop()
 except SystemExit:
     pass
+
+
+# https://github.com/Bernardo-Zamin/T1-CG.git
