@@ -465,15 +465,19 @@ def TestaColisaoTirosJogador():
     global Personagens, vidas, game_state
 
     for tiro in [p for p in Personagens if p.tipo == 'TiroInimigo' and p.ativo]:
-        for vida in [p for p in Personagens if p.tipo == 'Vida' and p.ativo]:
-            if Personagens[0].ativo and TestaColisao(tiro, Personagens[0]):
-                tiro.ativo = False
-                vida.ativo = False
-                vidas -= 1
-                if vidas <= 0:
-                    game_state = GAME_STATE_FIM
-                    glutDisplayFunc(display_game_over)
-                return
+        if Personagens[0].ativo and ColisaoTiroPersonagem(tiro, Personagens[0]):
+            tiro.ativo = False
+            vidas -= 1
+            # Desativar um coração (vida) da tela
+            vida_para_desativar = next((p for p in Personagens if p.tipo == 'Vida' and p.ativo), None)
+            if vida_para_desativar:
+                vida_para_desativar.ativo = False
+
+            if vidas <= 0:
+                game_state = GAME_STATE_FIM
+                glutDisplayFunc(display_game_over)
+            return
+
 
 
 def TestaColisao(P1, P2) -> bool:
