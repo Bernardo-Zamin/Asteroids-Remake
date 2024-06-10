@@ -93,7 +93,7 @@ def animate():
     atualizar_meteoros()
     atualiza_tiros()
     rand = random.randint(0, 100)
-    if rand <= 15:
+    if rand <= 35:
         dispara_tiros_inimigos()
 
     glutPostRedisplay()
@@ -902,7 +902,7 @@ def dispara_tiros_inimigos():
     global Personagens
 
     for inimigo in [p for p in Personagens if p.tipo == 'Inimigo' and p.ativo]:
-        if random.random() < 0.03:
+        if random.random() < 0.05:
             tiro_disponivel = next(
                 (t for t in Personagens if t.tipo == 'TiroInimigo' and not t.ativo), None)
             if tiro_disponivel:
@@ -911,7 +911,7 @@ def dispara_tiros_inimigos():
                     inimigo.Posicao.x, inimigo.Posicao.y)
                 tiro_disponivel.Direcao = Ponto(
                     inimigo.Direcao.x, inimigo.Direcao.y)
-                tiro_disponivel.Velocidade = 2.5
+                tiro_disponivel.Velocidade = 0.5
                 # print(
                 # f"Tiro disparado por inimigo em {inimigo.Posicao.x}, {inimigo.Posicao.y}")
 
