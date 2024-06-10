@@ -1,6 +1,5 @@
 # Trabalho 1 da disciplina de Computação Gráfica
 
-<<<<<<< HEAD
 Jogo Asteroids feito em Python com OpenGL
 
 <img src="images/StartGame.png" alt="Tela de Início" width="500">
@@ -14,5 +13,3 @@ Jogo Asteroids feito em Python com OpenGL
 ## Autor :bust_in_silhouette:
 
 Desenvolvido por [Bernardo Zamin](https://github.com/Bernardo-Zamin)
-=======
->>>>>>> e8eb36a2806e5922be9657bb9a0f98a746431b0e
