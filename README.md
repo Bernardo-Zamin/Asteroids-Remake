@@ -1,6 +1,6 @@
-# Trabalho 1 da disciplina de Computação Gráfica
+# Trabalho 1 da disciplina de Computação Gráfica PUCRS
 
-Jogo Asteroids feito em Python com OpenGL
+Jogo Asteroids desenvolvido em Python com OpenGL
 
 <img src="images/StartGame.png" alt="Tela de Início" width="500">
 
